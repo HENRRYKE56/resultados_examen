@@ -4,7 +4,7 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        <i class="fa fa-user-circle-o" aria-hidden="true"></i>  Reading
+        <i class="fa fa-user-circle-o" aria-hidden="true"></i>  
         
        
       </h1>

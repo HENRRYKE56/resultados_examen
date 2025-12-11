@@ -3,238 +3,138 @@
 //oki doki
 class Exam_model extends CI_Model
 {
-    function editarOficio($id = FALSE) {
-        if ($id === FALSE) {
-            $query = $this->db->get('correspondencia');
+    function ies() {
+       
+            $query = $this->db->get('cat_ies');
             return $query->result_array();
-        }
-
-        $query = $this->db->get_where('correspondencia', array('id' => $id));
-        return $query->row();
-    }
-    public function getOficiosInfo($id = FALSE) {
-        if ($id === FALSE) {
-            $query = $this->db->get('correspondencia');
-            return $query->result_array();
-        }
-
-        $query = $this->db->get_where('correspondencia', array('id' => $id));
-        return $query->row();
-    }
-
-    public function set_correspondencia($data) {
-       
-        $cve_area = $this->input->post('cve_area'); // Obtiene el array de áreas seleccionadas
-
-        if (!empty($cve_area)) {
-            $cve_area = implode(",", $cve_area); // Une los elementos del array con comas
-        } else {
-            $cve_area = ""; // Si no hay áreas seleccionadas, asigna un valor vacío
-        }
-       
-       $data['cve_area'] = $cve_area; // Asigna el string de áreas al campo cve_area en el array $data
-     
-       
-       $data['registrado_por']=$_SESSION['userId'];
-   
-        $this->db->insert('correspondencia', $data);
-        return $this->db->insert_id();
-    }
-function   save_file_info ($file_info) {
-        $this->db->insert('uploaded_files', $file_info);
-        return $this->db->insert_id();
-    }
-    function save_file_anexos($file_info_anexos) {
-        $this->db->insert('uploaded_files', $file_info_anexos);
-        return $this->db->insert_id();
-    }
-  
-
-  public function personal() { 
-   /* echo"<pre>";
-    print_r($_SESSION['role']);
-    echo"</pre>";   
-    die;*/
-    $this->db->select('cve_personal, nombre'); // Selecciona columnas específicas
-    $this->db->from('personas'); // Establece la tabla
-    $this->db->where('roleId', $_SESSION['role']); // Aplica el filtro de búsqueda
-    $query = $this->db->get(); // Ejecuta la consulta
-    return $query->result_array(); // Retorna el resultado como un arreglo asociativo
-
-
-
-        $query = $this->db->get('personas'); return $query->result_array(); 
-    }
-    public function estados() { 
-        $query = $this->db->get('catalogo_estados'); return $query->result_array(); 
-    }
-    public function areas() { 
-        $query = $this->db->get('catalogo_areas'); return $query->result_array(); 
-    }
-    function documentosAnexos($IdCorrespondencia) { 
-        $this->db->select('file_path as ruta'); // Selecciona columnas específicas
-        $this->db->from('uploaded_files'); // Establece la tabla
-        $this->db->where("cve_correspondencia",$IdCorrespondencia); // Aplica el filtro de búsqueda
-        $this->db->where("cve_documento",'anexos'); // Aplica el filtro de búsqueda
-        $query = $this->db->get(); // Ejecuta la consulta
-        return $query->row_array(); // Retorna el resultado como un arreglo asociativo
-    }
-    function documentosRespuesta($IdCorrespondencia) { 
-        $this->db->select('file_path as ruta'); // Selecciona columnas específicas
-        $this->db->from('uploaded_files'); // Establece la tabla
-        $this->db->where("cve_correspondencia",$IdCorrespondencia); // Aplica el filtro de búsqueda
-         $this->db->where("cve_documento",'respuesta'); // Aplica el filtro de búsqueda
-        $query = $this->db->get(); // Ejecuta la consulta
-        return $query->row_array(); // Retorna el resultado como un arreglo asociativo
-    }
-    function documentos($IdCorrespondencia) { 
-
-        $this->db->select('file_path as ruta'); // Selecciona columnas específicas
-    $this->db->from('uploaded_files'); // Establece la tabla
-    $this->db->where("cve_correspondencia",$IdCorrespondencia); // Aplica el filtro de búsqueda
-    $this->db->where("cve_documento",'oficio'); // Aplica el filtro de búsqueda
-   
-    $query = $this->db->get(); // Ejecuta la consulta
-    return $query->row_array(); // Retorna el resultado como un arreglo asociativo
-
-    
-    }
-    function dependencias() { 
-
-        $this->db->select('cve_dependencia, nombre_corto'); // Selecciona columnas específicas
-$this->db->from('catalogo_dependencias'); // Establece la tabla
-
-$query = $this->db->get(); // Ejecuta la consulta
-return $query->result_array(); // Retorna el resultado como un arreglo asociativo
-
       
     }
-    function correspondenciaListingCount($searchText)
-    {
-       
-     
+   public function get_sedes_by_ies($cve_ies)
+{
+    return $this->db->select('cve_sede, sede')
+                    ->from('catalogo_sede')
+                    ->where('cve_ies', $cve_ies)
+                    ->order_by('sede', 'ASC')
+                    ->get()
+                    ->result_array();
+}
 
-        
+public function get_programas_by_sede($cve_ies, $cve_sede)
+{
+    return $this->db->select('cve_programa, programa')
+                    ->from('cat_programas')
+                    ->where('cve_ies', $cve_ies)
+                    ->where('cve_sede', $cve_sede)
+                    ->order_by('programa', 'ASC')
+                    ->get()
+                    ->result_array();
+}
+public function get_resultados($ies = null, $sede = null, $programa = null)
+{
+   $this->db->select("
+    ies,
+    sede,
+    programa,
+    a.nombre_alumno,
+    b.rubro,
 
+    SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) AS correctos,
+    SUM(CASE WHEN a.estado = 'incorrecto' THEN 1 ELSE 0 END) AS incorrectos,
 
-        $this->db->select('*');
-        $this->db->from('correspondencia as BaseTbl');
-        $perfil=$_SESSION['role'];
-        ///1 y 4 lo ven todo
-        switch ($perfil) {
-            case 7: // "Control Escolar"
-                $likeCriteria1 = "(cve_area LIKE '%2%')";         
-                $this->db->where($likeCriteria1);
-                break;
-            case 9: // "Recursos Humanos"
-                $likeCriteria1 = "(cve_area LIKE '%3%')";         
-                $this->db->where($likeCriteria1);
-                break;
-            case 8: // "Planeación"
-                $likeCriteria1 = "(cve_area LIKE '%4%')";         
-                $this->db->where($likeCriteria1);
-                break;
-            case 6: // "Académica"
-                $likeCriteria1 = "(cve_area LIKE '%1%')";         
-                $this->db->where($likeCriteria1);
-                break;
-            default:
-                // Sin filtro para otros perfiles
-                break;
-        }
-        
-        // Filtro de búsqueda por texto
-        if (!empty($searchText)) {
-            $likeCriteria = "(asunto LIKE '%" . $searchText . "%')";
-            $this->db->where($likeCriteria);
-        }
-        
-        // Filtro adicional para no mostrar eliminados
-        $this->db->where('isDeleted', 0);
-        
-        // Ejecutar la consulta
-        $query = $this->db->get();
-        
-        return $query->num_rows();
-    }
-    
-    /**
-     * This function is used to get the booking listing count
-     * @param string $searchText : This is optional search text
-     * @param number $page : This is pagination offset
-     * @param number $segment : This is pagination limit
-     * @return array $result : This is result
-     */
-    function CorrespondenciaListing($searchText, $page, $segment)
-    {
-       
-        $this->db->select('
-        a.*, 
-        c.*, 
-        b.*, 
-        GROUP_CONCAT(b.cve_documento SEPARATOR ",") as documento, 
-        a.id as correspondencia,
-          GROUP_CONCAT(des_area SEPARATOR ", ") as nombre_area,
-          e.*,f.*
-    ');
-    $this->db->from('correspondencia as a');
-    $this->db->join('uploaded_files as b', 'a.id = b.cve_correspondencia', 'left');
-    $this->db->join('personas as c', 'a.asignado_a = c.cve_personal', 'left');
-    $this->db->join('catalogo_areas as d', 'FIND_IN_SET(d.cve_area, a.cve_area)', 'left'); // Para manejar "2,3"
-    $this->db->join('catalogo_dependencias as e', 'a.cve_dependencia = e.cve_dependencia', 'left');
-    $this->db->join('catalogo_estados as f', 'a.cve_estado = f.cve_estado', 'left');
-    $perfil=$_SESSION['role'];
-    ///1 y 4 lo ven todo
-    switch ($perfil) {
-        case 7: // "Control Escolar"
-            $likeCriteria1 = "(d.cve_area LIKE '%2%')";         
-            $this->db->where($likeCriteria1);
-            break;
-        case 9: // "Recursos Humanos"
-            $likeCriteria1 = "(d.cve_area LIKE '%3%')";         
-            $this->db->where($likeCriteria1);
-            break;
-        case 8: // "Planeación"
-            $likeCriteria1 = "(d.cve_area LIKE '%4%')";         
-            $this->db->where($likeCriteria1);
-            break;
-        case 6: // "Académica"
-            $likeCriteria1 = "(d.cve_area LIKE '%1%')";         
-            $this->db->where($likeCriteria1);
-            break;
-        default:
-            // Sin filtro para otros perfiles
-            break;
-    }    
+    COUNT(*) AS total_rubro,
 
+    ROUND(
+        (SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) / COUNT(*)) * 2.5,
+        2
+    ) AS calificacion_rubro
+", FALSE);
 
+$this->db->from('evaluacion_conocimientos_respuestas_2025 a');
+$this->db->join('cat_ies b2', 'a.cve_ies = b2.cve_ies', 'left');
+$this->db->join('catalogo_sede c', 'a.cve_sede = c.cve_sede', 'left');
+$this->db->join('cat_programas d', 'a.cve_programa = d.cve_programa', 'left');
+$this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro', 'inner'); // <-- este es de tu consulta MySQL
 
+// FILTROS OPCIONALES (solo se agregan si existe valor)
+if (!empty($ies)) {
+    $this->db->where('a.cve_ies', $ies);
+}
 
+if (!empty($sede)) {
+    $this->db->where('a.cve_sede', $sede);
+}
 
-        if(!empty($searchText)) {
-            $likeCriteria = "(a.asunto  LIKE '%".$searchText."%'
-                            OR  a.no_oficio  LIKE '%".$searchText."%'
-                            OR  a.asignado_a  LIKE '%".$searchText."%')";
-            $this->db->where($likeCriteria);
-        }
-        $this->db->where('isDeleted', 0);
-        $this->db->group_by('a.id'); // Agrupar por ID de correspondencia
-        $this->db->order_by('a.id', 'DESC');
-    
-   $this->db->limit($page, $segment);
-        $query = $this->db->get();
-        
-        $result = $query->result();        
-        return $result;
-    }
+if (!empty($programa)) {
+    $this->db->where('a.cve_programa', $programa);
+}
+
+$this->db->group_by([
+    'a.cve_ies',
+    'a.cve_sede',
+    'a.cve_programa',
+    'a.nombre_alumno',
+    'b.rubro'
+]);
+
+$this->db->order_by('a.nombre_alumno', 'ASC');
+$this->db->order_by('a.cve_sede', 'ASC');
+$this->db->order_by('b.cve_rubro', 'ASC');
+
+$query = $this->db->get();
+
+    return $query->result_array();
+}
+public function get_all_resultados_for_report($ies = null, $sede = null, $programa = null)
+{
+   $this->db->select("
    
-    function editarCorrespondencia($oficioInfo, $cve_correspondencia)
-    {
-        
-        $this->db->where('id', $cve_correspondencia);
-        $this->db->update('correspondencia', $oficioInfo);
-        
-        return TRUE;
-    }
-   
+    a.nombre_alumno,
+    b.rubro,
+sede,ies,programa,
+    SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) AS correctos,
+    SUM(CASE WHEN a.estado = 'incorrecto' THEN 1 ELSE 0 END) AS incorrectos,
+
+    COUNT(*) AS total_rubro,
+
+    ROUND(
+        (SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) / COUNT(*)) * 10,
+        2
+    ) AS calificacion_rubro
+", FALSE);
+
+$this->db->from('evaluacion_conocimientos_respuestas_2025 a');
+$this->db->join('cat_ies b2', 'a.cve_ies = b2.cve_ies', 'left');
+$this->db->join('catalogo_sede c', 'a.cve_sede = c.cve_sede', 'left');
+$this->db->join('cat_programas d', 'a.cve_programa = d.cve_programa', 'left');
+$this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro', 'inner'); // <-- este es de tu consulta MySQL
+
+// FILTROS OPCIONALES (solo se agregan si existe valor)
+if (!empty($ies)) {
+    $this->db->where('a.cve_ies', $ies);
+}
+
+if (!empty($sede)) {
+    $this->db->where('a.cve_sede', $sede);
+}
+
+if (!empty($programa)) {
+    $this->db->where('a.cve_programa', $programa);
+}
+
+$this->db->group_by([
+ 
+    'a.nombre_alumno',
+    'b.rubro'
+]);
+
+$this->db->order_by('a.nombre_alumno', 'ASC');
+$this->db->order_by('a.cve_sede', 'ASC');
+$this->db->order_by('b.cve_rubro', 'ASC');
+
+$query = $this->db->get();
+
+    return $query->result_array();
+}
+
+
 }

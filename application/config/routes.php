@@ -95,7 +95,7 @@ $route['roleListing/(:num)/(:num)'] = "roles/roleListing/$1/$2";
 $route['modulo'] = 'roles/addModule';
 $route['manage'] = 'roles/manage'; // Apunta al controlador Role y su método manage
 $route['examen'] = "Exam2025/add";
-$route['nuevaCorrespondencia'] = "Exam2025/AgregarNuevaCorrespondencia";
+
 $route['editarCorrespondencia/(:num)'] = "Exam2025/Editar/$1";
 $route['editar'] = "Exam2025/EditarCorrespondencia";
 $route['asignarCorrespondencia/(:num)'] = "Exam2025/asignar/$1";
@@ -113,6 +113,13 @@ $route['pdf/(:num)'] = "Oficios/imprmirincidencia/$1";
 $route['pdf1/(:num)'] = "Oficios/imprmirincidencia1/$1";
 $route['guardarIncidencia'] = "Oficios/guardarIncidencia";
 $route['imprimir/(:num)'] = "Oficios/imprmirOficio/$1";
+
+
+
+$route['exam2025/get-sedes'] = 'Exam2025/get_sedes';
+$route['exam2025/get-programas'] = 'Exam2025/get_programas';
+$route['reporte'] = "Exam2025/reporte";
+
 
 
 

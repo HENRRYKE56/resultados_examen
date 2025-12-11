@@ -15,14 +15,14 @@ class Pdf extends TCPDF {
     }
 
     
-    public function Header() {
-         $this->SetY(5); // Posicionar cerca del final de la página
-       
+public function Header() {
 
-        $this->Image(base_url('assets/images/cabeza1.png'), 14, $this->GetY(), 200,25); // Imagen en la parte inferior
-      
-      
-    }
+
+
+    // 🔹 Si quieres imagen, actívala
+     $this->Image(base_url('assets/images/cabeza.png'), 14, 5, 200, 25);
+}
+
     
 
     // Sobrescribir el método Footer para establecer la imagen de fondo
@@ -31,18 +31,18 @@ class Pdf extends TCPDF {
 
         // Establecer la imagen de fondo
         $this->SetY(-20); // Posicionar cerca del final de la página
-      //  $this->Image(base_url('assets/images/pie.png'), 12, $this->GetY(), 200,5); // Imagen en la parte inferior
+        $this->Image(base_url('assets/images/pie.png'), 12, $this->GetY(), 200,5); // Imagen en la parte inferior
 
       
             $lugares="Agripín García Estrada núm. 1306, primer piso, colonia Santa Cruz Atzcapotzaltongo, C. P. 50290,\n\n Toluca, Estado de México. Teléfono: 722 265 12 00, exts.: 1505. Página web: seiem.gob.mx";
         
         
-     $this->SetXY(80,-13);
+     $this->SetXY(10,-13);
              // Ajustar la posición Y para el texto 
-             $this->SetFont('dejavusans', '', 6); 
+             $this->SetFont('gothambook', '', 6); 
              // Establecer la fuente 
               // Añadir el texto centrado
-             $this->writeHTMLCell(110, 10, '', '',"205C33203/F/019", 0, 1, 0, true, 'R', true); 
+             $this->writeHTMLCell(180, 10, '', '',$lugares, 0, 1, 0, true, 'C', true); 
 
 
     }
