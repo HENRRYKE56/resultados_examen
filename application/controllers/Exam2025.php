@@ -18,6 +18,7 @@ class Exam2025 extends BaseController
     }
 
 
+
     public function index()
     {
         redirect('examen');

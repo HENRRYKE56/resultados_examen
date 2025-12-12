@@ -1,12 +1,6 @@
 <?php if(!defined('BASEPATH')) exit('No direct script access allowed');
 
-/**
- * Class : Booking_model (Booking Model)
- * Booking model class to get to handle booking related data 
- * @author : Kishor Mali
- * @version : 1.5
- * @since : 18 Jun 2022
- */
+
 class Booking_model extends CI_Model
 {
     /**

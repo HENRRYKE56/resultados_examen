@@ -1,6 +1,5 @@
 <?php if(!defined('BASEPATH')) exit('No direct script access allowed');
 
-//oki doki
 class Exam_model extends CI_Model
 {
     function ies() {
