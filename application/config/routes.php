@@ -106,6 +106,7 @@ $route['resultados'] = "Exam2025/reporte";
 $route['exam2025/get-sedes'] = 'Exam2025/get_sedes';
 $route['exam2025/get-programas'] = 'Exam2025/get_programas';
 $route['reporte'] = "Exam2025/reporte";
+$route['planes'] = "Exam2025/reporte_planes";
 
 
 
