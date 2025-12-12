@@ -23,7 +23,7 @@
                     </div><!-- /.box-header -->
                     <!-- form start -->
                     <?php $this->load->helper("form"); ?>
-                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("rsede") ?>" method="post" enctype="multipart/form-data" role="form">
+                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("rsede") ?>" target="_blank" method="post" enctype="multipart/form-data" role="form">
                         <div class="box-body">
                  
                                  <div class="col-md-4">
@@ -40,7 +40,7 @@
                            </div><!-- /.box-body -->
                           
                         <div class="box-footer">
-                            <input type="submit" class="btn btn-primary" target="_blank" value="Generar Reporte" />
+                            <input type="submit" class="btn btn-primary"  value="Generar Reporte" />
                             
                         </div>
                     </form>

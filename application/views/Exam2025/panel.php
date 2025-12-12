@@ -23,7 +23,7 @@
                     </div><!-- /.box-header -->
                     <!-- form start -->
                     <?php $this->load->helper("form"); ?>
-                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("reporte") ?>" method="post" enctype="multipart/form-data" role="form">
+                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("reporte") ?>" target="_blank" method="post" enctype="multipart/form-data" role="form">
                         <div class="box-body">
                  
                                  <div class="col-md-4">

@@ -16,10 +16,22 @@ class User_model extends CI_Model
      */
     function directorio()
     {
-        $this->db->select('*');
-        $this->db->from('catalogo_dependencias as a'); 
-        $this->db->where('a.estado', 0);
-        $this->db->order_by('a.nombre_corto', 'ASC');
+        $this->db->select(' b.rubro,
+
+
+    -- calificación del rubro (2.5 puntos por rubro)
+    ROUND(
+        (SUM(CASE WHEN a.estado = "correcto" THEN 1 ELSE 0 END) / COUNT(*)) * 10,
+        2
+    ) AS calificacion_rubro');
+        $this->db->from('evaluacion_conocimientos_respuestas_2025 a'); 
+         $this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro','inner');
+
+        $this->db->group_by([
+            'b.rubro'
+        ]);
+
+        $this->db->order_by('b.cve_rubro', 'ASC');
         // $this->db->where('BaseTbl.roleId !=', 1);
         $query = $this->db->get();
         
