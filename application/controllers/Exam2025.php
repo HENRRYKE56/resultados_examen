@@ -21,44 +21,6 @@ class Exam2025 extends BaseController
 
     public function index()
     {
-        redirect('inicio');
-    }
-
-
-    public function get_sedes()
-    {
-        if(!$this->hasCreateAccess())
-        {
-            $this->loadThis();
-        }
-        else
-        {
-            $cve_ies = $this->input->post('cve_ies');
-            $sedes = $this->em->get_sedes_by_ies($cve_ies);
-            echo json_encode($sedes);
-        }
-    }
-
-
-    public function get_programas()
-    {
-        if(!$this->hasCreateAccess())
-        {
-            $this->loadThis();
-        }
-        else
-        {
-            $cve_ies  = $this->input->post('cve_ies');
-            $cve_sede = $this->input->post('cve_sede');
-
-            $programas = $this->em->get_programas_by_sede($cve_ies, $cve_sede);
-            echo json_encode($programas);
-        }
-    }
-
-
-    public function inicio()
-    {
         if(!$this->hasCreateAccess())
         {
             $this->loadThis();
@@ -98,6 +60,44 @@ class Exam2025 extends BaseController
 
             $this->loadViews("Exam2025/panel", $this->global, $this->data, NULL);
         }
+    }
+
+
+    public function get_sedes()
+    {
+        if(!$this->hasCreateAccess())
+        {
+            $this->loadThis();
+        }
+        else
+        {
+            $cve_ies = $this->input->post('cve_ies');
+            $sedes = $this->em->get_sedes_by_ies($cve_ies);
+            echo json_encode($sedes);
+        }
+    }
+
+
+    public function get_programas()
+    {
+        if(!$this->hasCreateAccess())
+        {
+            $this->loadThis();
+        }
+        else
+        {
+            $cve_ies  = $this->input->post('cve_ies');
+            $cve_sede = $this->input->post('cve_sede');
+
+            $programas = $this->em->get_programas_by_sede($cve_ies, $cve_sede);
+            echo json_encode($programas);
+        }
+    }
+
+
+    public function inicio()
+    {
+        
     }
 
   
