@@ -78,8 +78,8 @@
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                
+            datasets: [{    
+                label: 'Puntaje (0 - 10)',
                 data: dataValues,
                 backgroundColor: colores,
                 borderColor: bordes,
