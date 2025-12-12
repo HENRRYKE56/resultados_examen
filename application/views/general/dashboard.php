@@ -2,7 +2,7 @@
   <!-- Content Header -->
   <section class="content-header">
     <h1>
-      <i class="fa fa-tachometer"></i> English Exam 2025
+      <i class="fa fa-tachometer"></i> Departamento de Formación Profesional
     </h1>
   </section>
 
@@ -13,7 +13,7 @@
         <div class="box box-primary">
           <div class="box-header">
             <div class="row">
-            <h1>&nbsp;&nbsp;&nbsp; Welcome to the English Exam</h1>
+            <h1>&nbsp;&nbsp;&nbsp; Resultados de Examen de Conocimientos Generales 7° Semestre 2025</h1>
             </div> <!-- /.row -->
           </div> <!-- /.box-header -->
         </div> <!-- /.box -->
