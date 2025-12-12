@@ -22,11 +22,11 @@ class Exam2025 extends BaseController
     public function index()
     {
         if(!$this->hasCreateAccess())
-        { die("va aqui");
+        { 
             $this->loadThis();
         }
         else
-        {die("va alla");
+        {
             $ies = $this->em->ies();
             $options1 = array();
             foreach ($ies as $ie) {   
