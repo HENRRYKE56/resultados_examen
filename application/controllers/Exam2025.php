@@ -8,7 +8,7 @@ class Exam2025 extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('exam_model', 'em');
+        $this->load->model('Exam_model', 'em');
         $this->isLoggedIn();
         $this->module = 'Exam';
         $this->load->helper('form');
