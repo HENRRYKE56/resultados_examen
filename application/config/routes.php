@@ -99,20 +99,7 @@ $route['manage'] = 'roles/manage'; // Apunta al controlador Role y su método ma
 $route['editarCorrespondencia/(:num)'] = "Exam2025/Editar/$1";
 $route['editar'] = "Exam2025/EditarCorrespondencia";
 $route['asignarCorrespondencia/(:num)'] = "Exam2025/asignar/$1";
-$route['descargar/(:num)'] = "Exam2025/descargarDocumento/$1";
-$route['adjuntar/(:num)'] = "Exam2025/adjuntarCorrespondencia/$1";
-$route['adjuntarDocumento'] = 'Exam2025/guardar';
-$route['descargarAnexos/(:num)'] = "Exam2025/descargarAnexos/$1";
-$route['descargarRespuesta/(:num)'] = "Exam2025/descargarRespuesta/$1";
-$route['seguimiento'] = "Exam2025/Seguimiento";
-$route['oficios'] = "Oficios/OficiosListing";
-$route['nuevoOficio'] = "Oficios/AgregarNuevoOficio";
-$route['editaroficio/(:num)'] = "Oficios/EditarOficio/$1";
-$route['guardarOficio'] = "Oficios/guardarOficio";
-$route['pdf/(:num)'] = "Oficios/imprmirincidencia/$1";
-$route['pdf1/(:num)'] = "Oficios/imprmirincidencia1/$1";
-$route['guardarIncidencia'] = "Oficios/guardarIncidencia";
-$route['imprimir/(:num)'] = "Oficios/imprmirOficio/$1";
+
 $route['resultados'] = "Exam2025/reporte";
 
 
