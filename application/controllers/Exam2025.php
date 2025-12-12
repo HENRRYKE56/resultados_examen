@@ -10,7 +10,7 @@ class Exam2025 extends BaseController
         parent::__construct();
         $this->load->model('Exam_model', 'em');
         $this->isLoggedIn();
-        $this->module = 'Exam';
+        $this->module = 'alumno';//importante revisar que esta en la tabla de menus
         $this->load->helper('form');
         $this->load->library('form_validation');
         $this->load->library('upload');
@@ -22,11 +22,11 @@ class Exam2025 extends BaseController
     public function index()
     {
         if(!$this->hasCreateAccess())
-        {
+        { die("va aqui");
             $this->loadThis();
         }
         else
-        {
+        {die("va alla");
             $ies = $this->em->ies();
             $options1 = array();
             foreach ($ies as $ie) {   
