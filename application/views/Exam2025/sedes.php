@@ -19,11 +19,11 @@
                 
                 <div class="box box-primary">
                     <div class="box-header">
-                        <h3 class="box-title">Reporte por Sede</h3>
+                        <h3 class="box-title">Reporte por Licenciaturas</h3>
                     </div><!-- /.box-header -->
                     <!-- form start -->
                     <?php $this->load->helper("form"); ?>
-                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("planes") ?>" method="post" enctype="multipart/form-data" role="form">
+                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("rsede") ?>" method="post" enctype="multipart/form-data" role="form">
                         <div class="box-body">
                  
                                  <div class="col-md-4">
@@ -32,12 +32,7 @@
                                         <?php echo  form_dropdown($ies) ?>
                                       </div>
                                 </div>
-                            <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="description">Sede </label>
-                                        <?php echo  form_dropdown($sede) ?>
-                                      </div>
-                                </div>
+                         
                              
                                 
                                
