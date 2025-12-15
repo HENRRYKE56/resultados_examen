@@ -5,6 +5,7 @@
     <h1>
       <i class="fa fa-tachometer"></i> Departamento de Formación Profesional
     </h1>
+    
   </section>
 
   <!-- Main Content -->
@@ -15,6 +16,7 @@
           <div class="box-header">
             <div class="row">
             <h1>&nbsp;&nbsp;&nbsp; Resultados de Examen de Conocimientos Generales 7° Semestre 2025</h1>
+            <h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b><?=$_SESSION['name']?></b></h2>
  <div class="col-md-8">
         <h3 style="font-family: Arial; color:#6E0014;">Calificación por Rubro</h3>
 

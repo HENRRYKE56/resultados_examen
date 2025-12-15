@@ -16,6 +16,69 @@ class User_model extends CI_Model
      */
     function directorio()
     {
+        $nombre = strtoupper($_SESSION['name']);
+
+switch ($nombre) {
+
+    case 'ACADEMICA':
+        $resultado = '';
+        break;
+
+    case 'NEZAHUALCÓYOTL ':
+
+        $resultado = '1';
+        break;
+        case 'NEZAHUALCÓYOTL':
+           $resultado = '10';
+        break;
+
+    case 'TLALNEPANTLA':
+        $resultado = '2';
+        break;
+
+    case 'LA HUERTA':
+        $resultado = '3';
+        break;
+
+    case 'ACAMBAY':
+        $resultado = '4';
+        break;
+
+    case 'IXTLAHUACA':
+        $resultado = '5';
+        break;
+
+    case 'JILOTEPEC':
+        $resultado = '6';
+        break;
+
+    case 'TEJUPILCO':
+        $resultado = '7';
+        break;
+
+    case 'TOLUCA':
+        $resultado = '8';
+        break;
+
+    case 'ATIZAPÁN':
+    case 'ATIZAPAN':
+        $resultado = '9';
+        break;
+
+    case 'TULTEPEC':
+        $resultado = '11';
+        break;
+
+    case 'ECATEPEC':
+        $resultado = '12';
+        break;
+
+    default:
+        $resultado = '';
+        break;
+}
+        
+
         $this->db->select(' b.rubro,
 
 
@@ -30,9 +93,11 @@ class User_model extends CI_Model
         $this->db->group_by([
             'b.rubro'
         ]);
-
+        if($resultado != ''){
+        $this->db->where('cve_sede', $resultado);
+        }
         $this->db->order_by('b.cve_rubro', 'ASC');
-        // $this->db->where('BaseTbl.roleId !=', 1);
+ 
         $query = $this->db->get();
         
         return $query->result_array();

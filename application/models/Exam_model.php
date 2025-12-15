@@ -3,16 +3,115 @@
 class Exam_model extends CI_Model
 {
     function ies() {
-       
-            $query = $this->db->get('cat_ies');
-            return $query->result_array();
+          $nombre = strtoupper($_SESSION['name']);
+  
+switch ($nombre) {
+
+    case 'ACADEMICA':
+        $resultado = '';
+        break;
+
+    case 'UPN 151':
+
+        $resultado = '3';
+        break;
+        case 'UPN 152':
+           $resultado = '4';
+        break;
+
+    case 'UPN 153':
+        $resultado = '5';
+        break;
+
+    case 'ESCUELA NORMAL SUPERIOR DEL VALLE DE MÉXICO':
+        $resultado = '1';
+        break;
+
+    case 'ESCUELA NORMAL SUPERIOR DEL VALLE DE TOLUCA':
+        $resultado = '2';
+        break;
+
+   
+
+    default:
+        $resultado = '';
+        break;
+}
+    
+   
+  $this->db->select('*');
+  $this->db->from('cat_ies a'); 
+        if (!empty($resultado)) {
+    $this->db->where('cve_ies', $resultado);
+}  
+ $query = $this->db->get();
+        
+        return $query->result_array();
+
+
       
     }
    public function get_sedes_by_ies($cve_ies)
 {
+  $nombre = strtoupper($_SESSION['userId']);
+  
+switch ($nombre) {
+
+    case 2://academica
+        $resultado = '';
+        break;
+
+    case 3://nezahualcoyotl
+
+        $resultado = 1;
+      
+        break;
+        case 4 ://tlalnepantla
+           $resultado = 2;
+        break;
+
+    case 5://huerta
+        $resultado = 3;
+        break;
+
+    case 6://acambay
+        $resultado = 4;
+        break;
+
+   case 7://ixtlahuaca
+        $resultado = 5;
+        break;
+    case 8://JILOTEPEC
+        $resultado = 6;
+        break;
+    case 9://TEJUPILCO
+        $resultado = 7;
+        break;
+    case 10://toluca
+        $resultado = 8;
+        break;
+    case 11://atizapan
+        $resultado = 9;
+        break;
+    case 12://upn nezahualcoyotl
+        $resultado = 10;
+        break;
+    case 13://tultepec
+        $resultado = 11;
+        break;
+    case 14://ecatepec
+        $resultado =12;
+        break;
+
+    default:
+        $resultado = 12;
+        break;
+}
+
     return $this->db->select('cve_sede, sede')
                     ->from('catalogo_sede')
                     ->where('cve_ies', $cve_ies)
+                    ->where('cve_sede', $resultado)
                     ->order_by('sede', 'ASC')
                     ->get()
                     ->result_array();
@@ -20,6 +119,8 @@ class Exam_model extends CI_Model
 
 public function get_programas_by_sede($cve_ies, $cve_sede)
 {
+
+    
     return $this->db->select('cve_programa, programa')
                     ->from('cat_programas')
                     ->where('cve_ies', $cve_ies)
