@@ -108,13 +108,15 @@ switch ($nombre) {
         break;
 }
 
-    return $this->db->select('cve_sede, sede')
-                    ->from('catalogo_sede')
-                    ->where('cve_ies', $cve_ies)
-                    ->where('cve_sede', $resultado)
-                    ->order_by('sede', 'ASC')
-                    ->get()
-                    ->result_array();
+  $this->db->select('cve_sede, sede')
+         ->from('catalogo_sede')
+         ->where('cve_ies', $cve_ies)
+         ->order_by('sede', 'ASC');
+
+!empty($resultado) && $this->db->where('cve_sede', $resultado);
+
+return $this->db->get()->result_array();
+
 }
 
 public function get_programas_by_sede($cve_ies, $cve_sede)
