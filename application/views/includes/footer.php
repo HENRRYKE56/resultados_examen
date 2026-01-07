@@ -7,17 +7,7 @@
         <strong>Copyright &copy; 2025 <a href="<?php echo base_url(); ?>">HLANDEROS</a>.</strong> DERECHOS RESERVADOS.
     </footer>
    
-<script>
-// Bloquear clic derecho
-document.addEventListener('contextmenu', event => event.preventDefault());
 
-// Bloquear teclas de copia, inspección, etc.
-document.onkeydown = function(e) {
-    if (e.ctrlKey && (e.key === 'c' || e.key === 'x' || e.key === 'v')) return false;
-    if (e.key === "PrintScreen") return false;
-    if (e.ctrlKey && e.shiftKey && e.key === 'I') return false;
-}
-</script> 
     <script src="<?php echo base_url(); ?>assets/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
     <!-- Bootstrap 4 -->

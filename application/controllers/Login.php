@@ -47,67 +47,79 @@ class Login extends CI_Controller
     /**
      * This function used to logged in user
      */
-    private function getMenu($permissions) {
-        // Obtener los elementos del menú desde la base de datos
-        $menuItems = $this->login_model->getMenuItems();
-    
-    
-        // Filtrar el menú según los permisos
-    $menuItems = array_filter($menuItems, function($item) use ($permissions) {
-        foreach ($permissions as $permission) {
-          //  echo $permission['module']."===". $item['module']."--->".$permission['list']."<br>";
-            if ($permission['module'] === $item['module'] && $permission['list'] == 1) {
+   private function getMenu($permissions)
+{
+    // 1. Convertir permisos en arreglo rápido
+    $allowedModules = [];
+    foreach ($permissions as $p) {
+        if ($p['list'] == 1) {
+            $allowedModules[$p['module']] = true;
+        }
+    }
 
-                return true; // Permitir acceso si el permiso 'list' es 1
-            }
-        }
-        return false;
+    // 2. Obtener menú desde BD
+    $menuItems = $this->login_model->getMenuItems();
+
+    // 3. Filtrar menú según permisos
+    $menuItems = array_filter($menuItems, function ($item) use ($allowedModules) {
+        return isset($allowedModules[$item['module']]);
     });
- //  print_r($menuItems); die;
-    // Construir y devolver el menú
+
+    // 4. Construir menú
     return $this->buildMenu($menuItems);
+}
+private function buildMenu($items)
+{
+    // Agrupar por parent_id
+    $grouped = [];
+    foreach ($items as $item) {
+        $grouped[$item['parent_id']][] = $item;
     }
-    
-    private function buildMenu($items, $parent_id = NULL) {
-        $html = ''; // Contenedor para el HTML del menú
-    
-        foreach ($items as $item) {
-            echo $item['url']."<br>";
-            if($item['url'] == "") {
-           
-               
-           
-                $html .= '<li class="header" align="center"><h5>' . $item['title'] . '</h5></li>'; // Encabezado del menú
-           
-            }
-            else{
-                        // Verificar si el elemento pertenece al nivel actual
-                        if ($item['parent_id'] == $parent_id) {
-                            $html .= '<li >'; // Abrir un elemento de lista
-                            if($item['url'] == "User/ceneval") {
-                               $html .= '<a href="' . base_url($item['url']) . '" TARGET="_blank" >';
-                            }
-                            else{
-                                $html .= '<a href="' . base_url($item['url']) . '">';
-                            }
-                            
-                            $html .= '<i class="' . $item['icon'] . '"></i> <span>' . $item['title'] . '</span>';
-                            $html .= '</a>';
-                
-                            // Llamada recursiva para submenús
-                            $subMenu = $this->buildMenu($items, $item['id']);
-                            if (!empty($subMenu)) {
-                                $html .= '<ul class="treeview-menu">' . $subMenu . '</ul>';
-                            }
-                
-                            $html .= '</li>'; // Cerrar el elemento de lista
-                        }
-                    }
+
+    // Renderizar desde raíz
+    return $this->renderMenu($grouped, NULL);
+}
+private function renderMenu($grouped, $parent_id = NULL)
+{
+    $html = '';
+
+    if (!isset($grouped[$parent_id])) {
+        return '';
+    }
+
+    foreach ($grouped[$parent_id] as $item) {
+
+        if ($item['is_active'] != 1) continue;
+
+        $hasChildren = isset($grouped[$item['id']]);
+
+        $html .= $hasChildren ? '<li class="treeview">' : '<li>';
+
+        if ($hasChildren) {
+            $html .= '<a href="javascript:void(0);">';
+        } else {
+            $html .= '<a href="' . base_url($item['url']) . '">';
         }
-    //die("fin");
-        return $html;
+
+        $html .= '<i class="' . $item['icon'] . '"></i>';
+        $html .= '<span>' . $item['title'] . '</span>';
+
+        if ($hasChildren) {
+            $html .= '<i class="fa fa-angle-left pull-right"></i>';
+            $html .= '</a>';
+            $html .= '<ul class="treeview-menu">';
+            $html .= $this->renderMenu($grouped, $item['id']);
+            $html .= '</ul>';
+        } else {
+            $html .= '</a>';
+        }
+
+        $html .= '</li>';
     }
-    
+
+    return $html;
+}
+
     public function loginMe()
     {
         $this->load->library('form_validation');
