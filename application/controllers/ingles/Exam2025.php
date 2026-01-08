@@ -8,7 +8,7 @@ class Exam2025 extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('Exam_model', 'em');
+        $this->load->model('ingles/Exam_model', 'em');
         $this->isLoggedIn();
         $this->module = 'alumno';//importante revisar que esta en la tabla de menus
         $this->load->helper('form');
@@ -56,9 +56,9 @@ class Exam2025 extends BaseController
                 'options' => array('' => 'Seleccione'),
             );
 
-            $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados Examen 2025';
+            $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados Examen de Inglés 2025';
 
-            $this->loadViews("Exam2025/panel", $this->global, $this->data, NULL);
+            $this->loadViews("ingles/panel", $this->global, $this->data, NULL);
         }
     }
 
@@ -436,21 +436,23 @@ $pdf->SetFont('gothambook', 'B', 8);
 
 for ($n = 0; $n <= 10; $n++) {
 
-    $xNum = $inicioX + ($anchoBarra / 10) * $n;
-    $pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
-    $pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
+$xNum = $inicioX + ($anchoBarra / 10) * $n;
+
+$pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
+
+$pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
 }
 
 // SUBDIVISIONES
 for ($n = 0; $n < 10; $n++) {
 
-    $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
-    $segmentoAncho = $anchoBarra / 10;
+$segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
+$segmentoAncho = $anchoBarra / 10;
 
-    for ($j = 1; $j <= 9; $j++) {
-    $xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
-    $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
-    }
+for ($j = 1; $j <= 9; $j++) {
+$xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
+$pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
+}
 }
 
 // MARCADOR DEL PUNTAJE
@@ -701,15 +703,13 @@ $pdf->Ln(8);
                 $pdf,
                 $nombreRubro,
                 number_format($puntajeRubro, 2),
-                array('Valor Obtenido' => $porcentaje),
-                $vino
+                array('Valor Obtenido' => $porcentaje)
             );
         }
     } // END FOR ALUMNOS
 
     $pdf->Output($nombre_archivo.'.pdf', 'I');
 }
- 
 public function reporte()
 {
     if (!$this->hasCreateAccess()) {
@@ -717,261 +717,235 @@ public function reporte()
         return;
     }
 
+    $nombre_archivo = "";
 
-
-$nombre_archivo="";
-
-
+    // ----------------------------------------------------
+    // CONFIGURACIÓN PDF
+    // ----------------------------------------------------
     $pdf = new PDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
     $pdf->SetCreator('HLANDEROS');
-    $pdf->SetAuthor('Hlanderos');
-    $pdf->SetTitle('Reporte de Examen de Conocimientos 2025');
+    $pdf->SetAuthor('HLANDEROS');
+    $pdf->SetTitle('Reporte de Examen de Inglés 2025');
     $pdf->setPrintHeader(true);
     $pdf->setPrintFooter(true);
     $pdf->SetMargins(20, 20, 20);
 
-    $vino = array(110, 0, 20);
+    $vinos = [110, 0, 20];
 
+    // ----------------------------------------------------
+    // DATOS POST
+    // ----------------------------------------------------
     $ies      = $this->input->post('ies');
     $sede     = $this->input->post('sede');
     $programa = $this->input->post('programa');
 
-    // *** CAMBIO CLAVE #1: UNA SOLA CONSULTA A LA BD ***
-    // Usamos nuestra nueva función optimizada
-    $todos_los_resultados_crudos = $this->em->get_all_resultados_for_report($ies, $sede, $programa);
+    // ----------------------------------------------------
+    // CONSULTA ÚNICA A BD (OPTIMIZADA)
+    // ----------------------------------------------------
+    $resultados_crudos = $this->em->get_all_resultados_for_report(
+        $ies,
+        $sede,
+        $programa
+    );
 
-    // *** CAMBIO CLAVE #2: AGRUPAR DATOS EN PHP (en lugar de en la BD) ***
-    // Transformamos el array plano en un array anidado por alumno
+    // ----------------------------------------------------
+    // AGRUPACIÓN POR ALUMNO
+    // ----------------------------------------------------
     $resultados_por_alumno = [];
-    foreach ($todos_los_resultados_crudos as $fila) {
-        $nombre_alumno = $fila['nombre_alumno'];
-        
-        // Si es la primera vez que vemos a este alumno, creamos su entrada
-        if (!isset($resultados_por_alumno[$nombre_alumno])) {
-            $nombre_archivo=$fila['ies'] . '_' . $fila['sede'] . '_' . $fila['programa'];
-            $resultados_por_alumno[$nombre_alumno] = [
-                'ies'      => $fila['ies'],
-                'sede'     => $fila['sede'],
-                'programa' => $fila['programa'],
-                'rubros'   => [] // Aquí guardaremos sus resultados
+
+    foreach ($resultados_crudos as $fila) {
+        $nombre = $fila['nombre_alumno'];
+
+        if (!isset($resultados_por_alumno[$nombre])) {
+            $nombre_archivo = $fila['ies'].'_'.$fila['sede'].'_'.$fila['programa'];
+
+            $resultados_por_alumno[$nombre] = [
+                'ies'       => $fila['ies'],
+                'sede'      => $fila['sede'],
+                'programa'  => $fila['programa'],
+                'nivel'     => $fila['nivel'],
+                'promedio'  => $fila['promedio'],
+                'rubros'    => []
             ];
         }
-        
-        // Añadimos el resultado de este rubro a su lista personal
-        $resultados_por_alumno[$nombre_alumno]['rubros'][] = [
-            'rubro'            => $fila['rubro'],
-            'calificacion_rubro' => $fila['calificacion_rubro']
+
+        $resultados_por_alumno[$nombre]['rubros'] = [
+            'reading'    => $fila['reading'],
+            'vocabulary' => $fila['vocabulary'],
+            'grammar'    => $fila['grammar']
         ];
     }
 
-    // *** CAMBIO CLAVE #3: RECORRER LOS DATOS YA AGRUPADOS ***
-    // Ahora el bucle es mucho más ligero porque no hay consultas a la BD
-    foreach ($resultados_por_alumno as $nombre_alumno_reporte => $datos_alumno) {
-
+    // ----------------------------------------------------
+    // GENERACIÓN DE PDF POR ALUMNO
+    // ----------------------------------------------------
+    foreach ($resultados_por_alumno as $nombre_alumno => $datos) {
         $pdf->AddPage();
 
-        // ----------------------------
-        // ENCABEZADO Y DATOS
-        // ----------------------------
- $html1 = 'Resultados del Examen General de Conocimientos de 7° Semestre 2025<br><br>';
+        // ------------------------------------------------
+        // ENCABEZADO
+        // ------------------------------------------------
+        $pdf->SetFont('gothamblack', '', 11);
+        $pdf->SetXY(0, 30);
+        $pdf->writeHTML(
+            'Resultados del Examen de Inglés 7° Semestre – 2025',
+            false,
+            false,
+            false,
+            '',
+            'C'
+        );
 
-                $pdf->SetXY(0, 30);
-        $pdf->SetFont('gothamblack', '', 10);
-        $pdf->writeHTML($html1, false, false, false, '', 'C');
+        // ------------------------------------------------
+        // DATOS GENERALES
+        // ------------------------------------------------
+        $htmlDatos = "
+            <b>Institución:</b> {$datos['ies']}<br>
+            <b>Sede:</b> {$datos['sede']}<br>
+            <b>Programa:</b> {$datos['programa']}<br>
+            <b>Sustentante:</b> {$nombre_alumno}<br>
+            <b>Fecha de aplicación:</b> 10 de diciembre de 2025<br><br>
+        ";
 
-
-        $html = '
-            <b>Institución:</b> ' . $datos_alumno['ies'] . ' <br>
-            <b>Sede:</b> ' . $datos_alumno['sede'] . ' <br>
-            <b>Programa:</b> ' . $datos_alumno['programa'] . '<br>
-            <b>Sustentante:</b> ' . $nombre_alumno_reporte . '<br>
-            <b>Fecha de aplicación:</b> 10 de diciembre de 2025<br><br>';
-
-        $pdf->SetXY(22, 36);
-        $pdf->SetFont('gothamblack', '', 10);
-        $pdf->writeHTML($html, false, false, false, '');
-
-       
-
-        // --------------------------------------------------------------
-        // CONTENIDO DEL REPORTE
-        // --------------------------------------------------------------
-
+        $pdf->SetXY(22, 40);
         $pdf->SetFont('gothambook', '', 10);
-        $pdf->SetTextColor(0,0,0);
+        $pdf->writeHTML($htmlDatos, false, false, false, '');
 
-        // *** CAMBIO CLAVE #4: CALCULAR EL TOTAL UNA SOLA VEZ ***
-        $valorObtenido = 0;
-        foreach ($datos_alumno['rubros'] as $rubro) {
-            $valorObtenido += $rubro['calificacion_rubro'];
+        // ------------------------------------------------
+        // PUNTAJE GENERAL
+        // ------------------------------------------------
+        $valorObtenido = number_format($datos['promedio'], 2);
+        $puntaje = floatval($valorObtenido);
+
+        $pdf->SetFont('gothamblack', '', 12);
+        $pdf->SetFillColor($vinos[0], $vinos[1], $vinos[2]);
+        $pdf->SetTextColor(255,255,255);
+        $pdf->Cell(50, 10, 'Puntaje Obtenido', 0, 0, 'C', 1);
+
+        $pdf->SetFont('gothamblack', '', 16);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->Cell(30, 10, $valorObtenido, 0, 1, 'C');
+
+        $pdf->Ln(6);
+
+        // ------------------------------------------------
+        // GRÁFICA DE BARRA (ESCALA 0–10)
+        // ------------------------------------------------
+        $inicioX = 20;
+        $y = $pdf->GetY();
+
+        $anchoBarra = 180;
+        $altoBarra  = 10;
+
+        $pdf->SetLineWidth(0.3);
+        $pdf->SetDrawColor(110, 0, 20);
+        $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
+
+        // NUMERACIÓN DEL 0 AL 10
+        $pdf->SetFont('gothambook', 'B', 8);
+
+        for ($n = 0; $n <= 10; $n++) {
+            $xNum = $inicioX + ($anchoBarra / 10) * $n;
+            $pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
+            $pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
         }
 
-        // ... (El resto de tu código para el PDF, la barra de puntaje, etc., va aquí y funciona igual) ...
-        // No lo repito para no hacerlo más largo, pero puedes pegarlo tal cual.
-        
+        // SUBDIVISIONES
+        for ($n = 0; $n < 10; $n++) {
+            $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
+            $segmentoAncho = $anchoBarra / 10;
 
-// --------------------------------------------------------------
-// CONTENIDO DEL REPORTE
-// --------------------------------------------------------------
+            for ($j = 1; $j <= 9; $j++) {
+                $xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
+                $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
+            }
+        }
 
-$pdf->SetFont('gothamblack', 'B', 10);
-$pdf->SetTextColor(0,0,0);
+        // Indicador de puntaje
+        $posicion = $inicioX + ($puntaje / 10) * $anchoBarra;
+        $pdf->SetLineWidth(1);
+        $pdf->SetDrawColor(145, 0, 30);
+        $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
+        $pdf->SetLineWidth(0.2);
 
-$valorObtenido = 0;
-$resultados_por_alumno = $datos_alumno['rubros'];
-for ($k = 0; $k < count($resultados_por_alumno); $k++) {
-$valorObtenido += $resultados_por_alumno[$k]['calificacion_rubro'];
-}
-$valorObtenido=number_format(($valorObtenido/4), 2); // PROMEDIO GENERAL
-// --------------------------------------------------------------
-// PUNTAJE GLOBAL
-// --------------------------------------------------------------
+        $pdf->Ln(5);
 
-$pdf->SetFont('gothamblack', 'B', 12);
-$pdf->SetFillColor($vino[0], $vino[1], $vino[2]);
-$pdf->SetTextColor(255,255,255);
-
-$pdf->Cell(50, 10, 'Puntaje Obtenido', 0, 0, 'C', 1);
-
-$pdf->SetFont('gothamblack', 'B', 16);
-$pdf->SetTextColor(0,0,0);
-$pdf->Cell(30, 10, $valorObtenido, 0, 1, 'C', 0);
-
-$pdf->Ln(4);
-
-$puntaje = $valorObtenido; // puntaje dinámico
-$inicioX = 20;
-
-$pdf->SetXY(20, 75);
-$y = $pdf->GetY();
-
-$anchoBarra = 180;
-$altoBarra = $puntaje;
-
-$pdf->SetLineWidth(0.3);
-$pdf->SetDrawColor(110, 0, 20);
-$pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
-
-// NUMERACIÓN DEL 0 AL 10
-$pdf->SetFont('gothambook', 'B', 8);
-
-for ($n = 0; $n <= 10; $n++) {
-
-$xNum = $inicioX + ($anchoBarra / 10) * $n;
-
-$pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
-
-$pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
-}
-
-// SUBDIVISIONES
-for ($n = 0; $n < 10; $n++) {
-
-$segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
-$segmentoAncho = $anchoBarra / 10;
-
-for ($j = 1; $j <= 9; $j++) {
-$xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
-$pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
-}
-}
-
-// MARCADOR DEL PUNTAJE
-$posicionPuntaje = $inicioX + ($puntaje / 10) * $anchoBarra;
-
-$pdf->SetDrawColor(145, 0, 30);
-$pdf->SetLineWidth(1);
-$pdf->Line($posicionPuntaje, $y - 2, $posicionPuntaje, $y + $altoBarra + 2);
-
-// Línea fina restaurada
-$pdf->SetLineWidth(0.2);
-
-$pdf->Ln(8);
-
-        // --- EJEMPLO DE CÓMO SE USA EL NUEVO ARRAY ---
-        $pdf->Ln(8);
-        $listaRubros = [
-            "Políticas, gestión y evaluación educativas",
-            "Docencia, Formación y Orientación Educativa",
-            "Didáctica y currículo",
-            "Investigación educativa"
+        // ------------------------------------------------
+        // BLOQUE POR RUBROS
+        // ------------------------------------------------
+        $rubros = [
+            'Reading'    => $datos['rubros']['reading'],
+            'Vocabulary' => $datos['rubros']['vocabulary'],
+            'Grammar'    => $datos['rubros']['grammar']
         ];
 
-        foreach ($listaRubros as $nombreRubro) {
-            $puntajeRubro = 0;
-            // Buscamos el rubro en los datos del alumno que ya están en memoria
-            foreach ($datos_alumno['rubros'] as $rubro_data) {
-                if ($rubro_data['rubro'] === $nombreRubro) {
-                    $puntajeRubro = $rubro_data['calificacion_rubro'];
-                    break;
-                }
-            }
-            
-            $porcentaje = ($puntajeRubro / 10) * 100;
-
-            $this->bloqueModulo(
+        foreach ($rubros as $nombreRubro => $valorRubro) {
+            // Llama a la nueva función que incluye la regleta
+            $regla = $this->determinarRegla($valorRubro);
+            $this->bloqueModuloConRegleta(
                 $pdf,
                 $nombreRubro,
-                number_format($puntajeRubro, 2),
-                array('Valor Obtenido' => $porcentaje),
-                $vino
+                number_format($valorRubro, 2),
+                array('Puntaje' => $valorRubro, 'Regla' => $regla),
+                $vinos
             );
         }
-    } // END FOR ALUMNOS
+    }
 
+    // ----------------------------------------------------
+    // SALIDA PDF
+    // ----------------------------------------------------
     $pdf->Output($nombre_archivo.'.pdf', 'I');
 }
 
+/**
+ * Determina la regla de evaluación según el puntaje obtenido
+ * @param float $puntaje Puntaje del rubro
+ * @return array Descripción de la regla y color asociado
+ */
+function determinarRegla($puntaje) {
+    $puntaje = floatval($puntaje);
+    
+    if ($puntaje >= 9.0) {
+        return ["texto" => "Excelente", "color" => [0, 128, 0]]; // Verde
+    } elseif ($puntaje >= 7.5) {
+        return ["texto" => "Notable", "color" => [0, 0, 255]]; // Azul
+    } elseif ($puntaje >= 6.0) {
+        return ["texto" => "Aprobado", "color" => [255, 165, 0]]; // Naranja
+    } else {
+        return ["texto" => "Necesita mejorar", "color" => [255, 0, 0]]; // Rojo
+    }
+}
 
-
-    /** ----------------------------------------
-     *   FUNCIÓN CORRECTA DE BLOQUE
-     * ---------------------------------------- */
-   function bloqueModulo($pdf, $titulo, $puntaje, $items, $colorTitulo) {
-
-    // --------------------------------------------------------------
-    // TÍTULO DEL RUBRO
-    // --------------------------------------------------------------
-    $pdf->SetFillColor($colorTitulo[0], $colorTitulo[1], $colorTitulo[2]);
-    $pdf->SetTextColor(255,255,255);
-    $pdf->SetFont('gothambook', 'B', 12);
-    $pdf->Cell(180, 9, $titulo ." ".     $puntaje, 0, 1, 'L', 1);
-    $pdf->Ln(3);
-
-    // --------------------------------------------------------------
-    // REGLA TIPO GLOBAL (para cada rubro)
-    // --------------------------------------------------------------
-    $puntaje_valor = floatval($puntaje); // 0 a 10
-    if ($puntaje_valor < 0) $puntaje_valor = 0;
-    if ($puntaje_valor > 10) $puntaje_valor = 10;
-
-    $pdf->SetFont('gothambook', '', 10);
-    $pdf->SetTextColor(0,0,0);
-
-    // posición Y de la barra
+/**
+ * Dibuja una regleta (gráfico de barras) con escala de 0 a 10.
+ * @param TCPDF $pdf Instancia del PDF.
+ * @param float $y Posición vertical Y donde comenzará a dibujarse la regleta.
+ * @param float $puntaje El puntaje a marcar en la regleta (ej: 8.53).
+ * @param int $altoBarra Altura de la barra del gráfico.
+ */
+private function dibujarRegletaPuntaje($pdf, $y, $puntaje, $altoBarra = 15)
+{
     $inicioX = 20;
-    $y = $pdf->GetY();
-
     $anchoBarra = 180;
-    $altoBarra = 10; // altura fija para todos los rubros
+    $puntaje = floatval($puntaje);
 
-    // Marco
-    $pdf->SetLineWidth(0.3);
-    $pdf->SetDrawColor(110, 0, 20);
+    // Dibuja el contorno principal de la barra
+    $pdf->SetDrawColor(110, 0, 15);
     $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
-    // NUMERACIÓN 0–10
-    $pdf->SetFont('gothambook', 'B', 7);
-
+    // Dibuja las líneas de la escala y los números (0, 1, 2... 10)
+    $pdf->SetFont('gothambook', 'b', 8);
     for ($i = 0; $i <= 10; $i++) {
-        $xNum = $inicioX + ($anchoBarra / 10) * $i;
-        $pdf->Text($xNum - 1.2, $y + $altoBarra + 2.5, (string)$i);
-        $pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
+        $x = $inicioX + ($anchoBarra / 10) * $i;
+        $pdf->Line($x, $y, $x, $y + $altoBarra);
+        // Ajustamos la posición Y para asegurar que la numeración sea visible
+        $pdf->Text($x - 2, $y + $altoBarra + 3, $i);
     }
 
-    // SUBDIVISIONES 10 por segmento
-    for ($i = 0; $i < 10; $i++) {
-        $segmentoInicio = $inicioX + ($anchoBarra / 10) * $i;
+    // SUBDIVISIONES
+    for ($n = 0; $n < 10; $n++) {
+        $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
         $segmentoAncho = $anchoBarra / 10;
 
         for ($j = 1; $j <= 9; $j++) {
@@ -980,29 +954,46 @@ $pdf->Ln(8);
         }
     }
 
-   // MARCADOR DE PUNTAJE
-$posicionPuntaje = $inicioX + ($puntaje_valor / 10) * $anchoBarra;
-
-// Color según puntaje
-if ($puntaje_valor < 6) {
-    // amarillo
-    $pdf->SetDrawColor(255, 200, 0);
-} else {
-    // verde claro
-    $pdf->SetDrawColor(0, 180, 70);
+    // Indicador de puntaje
+    $posicion = $inicioX + ($puntaje / 10) * $anchoBarra;
+    $pdf->SetLineWidth(1);
+    $pdf->SetDrawColor(145, 0, 30);
+    $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
+    $pdf->SetLineWidth(0.2);
 }
 
-$pdf->SetLineWidth(1);
-$pdf->Line($posicionPuntaje, $y - 2, $posicionPuntaje, $y + $altoBarra + 2);
+function bloqueModuloConRegleta($pdf, $titulo, $puntaje, $valor, $colorTitulo)
+{
+    // --- Título del Rubro ---
+    $pdf->SetFillColor($colorTitulo[0], $colorTitulo[1], $colorTitulo[2]);
+    $pdf->SetTextColor(255, 255, 255);
+    $pdf->SetFont('gothambook', 'B', 12);
 
-// Restaurar grosor
-$pdf->SetLineWidth(0.2);
+    // Obtenemos el texto y el color de la regla
+    $textoRegla = $valor['Regla']['texto'];
+    $colorRegla = $valor['Regla']['color'];
 
+    // Mostramos el título con el puntaje
+    $pdf->Cell(180, 5, $titulo. " ".$valor['Puntaje'], 0, 1, 'L', 1);
+    
+    // Mostramos la regla con su color correspondiente
+    $pdf->SetTextColor($colorRegla[0], $colorRegla[1], $colorRegla[2]);
+    $pdf->SetFont('gothambook', 'B', 10);
+    $pdf->Cell(180, 5, $textoRegla, 0, 1, 'L', 0);
+    
+    // Restablecemos el color del texto
+    $pdf->SetTextColor(0, 0, 0);
 
-    $pdf->Ln($altoBarra + 5);
+    // --- Dibujo de la Regleta ---
+    // Obtenemos la posición Y actual para dibujar la regleta justo debajo del título
+    $y_regleta = $pdf->GetY();
+
+    // Llama a nuestra función auxiliar para dibujar la regleta
+    $this->dibujarRegletaPuntaje($pdf, $y_regleta, $puntaje);
+
+    // Añade un espacio vertical después de la regleta para que no se amontone con el siguiente bloque
+    $pdf->Ln(20);
 }
-
-
 }
 
 ?>

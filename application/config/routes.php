@@ -109,6 +109,9 @@ $route['reporte'] = "Exam2025/reporte";
 $route['planes'] = "Exam2025/reporte_planes";
 $route['rsede'] = "Exam2025/reporte_sedes";
 
+////////////////////////////rportes examenes ingles 2025
+$route['reporte_ingles'] = "ingles/Exam2025/reporte";
+
 
 
 
