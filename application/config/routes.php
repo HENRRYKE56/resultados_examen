@@ -112,6 +112,7 @@ $route['rsede'] = "Exam2025/reporte_sedes";
 ////////////////////////////rportes examenes ingles 2025
 $route['reporte_ingles'] = "ingles/Exam2025/reporte";
 $route['ingles_sede'] = "ingles/Exam2025/reporte_sedes";
+$route['ingles_planes'] = "ingles/Exam2025/reporte_planes";
 
 
 

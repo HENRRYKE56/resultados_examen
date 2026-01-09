@@ -19,11 +19,11 @@
                 
                 <div class="box box-primary">
                     <div class="box-header">
-                        <h3 class="box-title">Reporte por Sede</h3>
+                        <h3 class="box-title">Reporte por Licenciatura del Examen de Inglés 2025</h3>
                     </div><!-- /.box-header -->
                     <!-- form start -->
                     <?php $this->load->helper("form"); ?>
-                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("planes") ?>" target="_blank" method="post" enctype="multipart/form-data" role="form">
+                    <form role="form" autocomplete="off" id="reporte" action="<?php echo base_url("ingles_planes") ?>" target="_blank" method="post" enctype="multipart/form-data" role="form">
                         <div class="box-body">
                  
                                  <div class="col-md-4">

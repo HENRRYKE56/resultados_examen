@@ -19,7 +19,7 @@
                 
                 <div class="box box-primary">
                     <div class="box-header">
-                        <h3 class="box-title">Reporte por Sede</h3>
+                        <h3 class="box-title">Reporte por Sede del Examen de Inglés 2025</h3>
                     </div><!-- /.box-header -->
                     <!-- form start -->
                     <?php $this->load->helper("form"); ?>
