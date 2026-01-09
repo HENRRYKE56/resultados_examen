@@ -133,29 +133,13 @@ public function get_programas_by_sede($cve_ies, $cve_sede)
 }
 public function get_resultados($ies = null, $sede = null, $programa = null)
 {
-   $this->db->select("
-    ies,
-    sede,
-    programa,
-    a.nombre_alumno,
-    b.rubro,
-
-    SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) AS correctos,
-    SUM(CASE WHEN a.estado = 'incorrecto' THEN 1 ELSE 0 END) AS incorrectos,
-
-    COUNT(*) AS total_rubro,
-
-    ROUND(
-        (SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) / COUNT(*)) * 2.5,
-        2
-    ) AS calificacion_rubro
-", FALSE);
+   $this->db->select("*", FALSE);
 
 $this->db->from('evaluacion_conocimientos_respuestas_2025 a');
 $this->db->join('cat_ies b2', 'a.cve_ies = b2.cve_ies', 'left');
 $this->db->join('catalogo_sede c', 'a.cve_sede = c.cve_sede', 'left');
 $this->db->join('cat_programas d', 'a.cve_programa = d.cve_programa', 'left');
-$this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro', 'inner'); // <-- este es de tu consulta MySQL
+//$this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro', 'inner'); // <-- este es de tu consulta MySQL
 
 // FILTROS OPCIONALES (solo se agregan si existe valor)
 if (!empty($ies)) {
@@ -175,12 +159,12 @@ $this->db->group_by([
     'a.cve_sede',
     'a.cve_programa',
     'a.nombre_alumno',
-    'b.rubro'
+    
 ]);
 
 $this->db->order_by('a.nombre_alumno', 'ASC');
 $this->db->order_by('a.cve_sede', 'ASC');
-$this->db->order_by('b.cve_rubro', 'ASC');
+
 
 $query = $this->db->get();
 
@@ -188,90 +172,81 @@ $query = $this->db->get();
 }
 public function get_all_resultados_for_sedes($ies = null, $sede = null)
 {
-     $this->db->select("
-   
-    b.rubro,
-sede,ies,
-    SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) AS correctos,
-    SUM(CASE WHEN a.estado = 'incorrecto' THEN 1 ELSE 0 END) AS incorrectos,
+    /////
+ $this->db->select("
+    a.examen, 
+    a.cve_semestre, 
+    ROUND(AVG(a.grammar), 2) AS grammar, 
+    ROUND(AVG(a.vocabulary), 2) AS vocabulary, 
+    ROUND(AVG(a.reading), 2) AS reading, 
+    ROUND(AVG(a.promedio), 2) AS promedio, 
+    b2.ies, 
+    c.sede, 
+    d.programa
+", FALSE); // El FALSE es importante para no escapar las funciones SQL
 
-    COUNT(*) AS total_rubro,
-
-    ROUND(
-        (SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) / COUNT(*)) * 10,
-        2
-    ) AS calificacion_rubro
-", FALSE);
-
-$this->db->from('evaluacion_conocimientos_respuestas_2025 a');
-$this->db->join('cat_ies b2', 'a.cve_ies = b2.cve_ies', 'left');
-$this->db->join('catalogo_sede c', 'a.cve_sede = c.cve_sede', 'left');
-$this->db->join('cat_programas d', 'a.cve_programa = d.cve_programa', 'left');
-$this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro', 'inner'); // <-- este es de tu consulta MySQL
+ $this->db->from('resultados_x_secciones a');
+ $this->db->join('cat_ies b2', 'a.cve_ies = b2.cve_ies', 'left');
+ $this->db->join('catalogo_sede c', 'a.cve_sede = c.cve_sede', 'left');
+ $this->db->join('cat_programas d', 'a.cve_programa = d.cve_programa', 'left');
 
 // FILTROS OPCIONALES (solo se agregan si existe valor)
 if (!empty($ies)) {
     $this->db->where('a.cve_ies', $ies);
 }
 
+// Agrupamos por sede y examen, como solicitaste
+ $this->db->group_by(['a.cve_sede', 'a.examen']);
+
+// Opcional: Ordenar los resultados para que sean consistentes
+ $this->db->order_by('a.cve_sede', 'ASC');
 
 
-$this->db->group_by([
- 
-    'a.cve_sede',
-    'b.rubro'
-]);
+ $query = $this->db->get();
+
+// Devuelves los resultados
+return $query->result_array();
 
 
-$this->db->order_by('a.cve_sede', 'ASC');
-$this->db->order_by('b.cve_rubro', 'ASC');
-
-$query = $this->db->get();
-
-    return $query->result_array();
 
    
 }
 public function get_all_resultados_for_ies()
 {
-     $this->db->select("
-   
-    b.rubro,
-sede,ies,
-    SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) AS correctos,
-    SUM(CASE WHEN a.estado = 'incorrecto' THEN 1 ELSE 0 END) AS incorrectos,
+      $this->db->select("*", FALSE);
 
-    COUNT(*) AS total_rubro,
-
-    ROUND(
-        (SUM(CASE WHEN a.estado = 'correcto' THEN 1 ELSE 0 END) / COUNT(*)) * 10,
-        2
-    ) AS calificacion_rubro
-", FALSE);
-
-$this->db->from('evaluacion_conocimientos_respuestas_2025 a');
+$this->db->from('resultados_x_secciones a');
 $this->db->join('cat_ies b2', 'a.cve_ies = b2.cve_ies', 'left');
 $this->db->join('catalogo_sede c', 'a.cve_sede = c.cve_sede', 'left');
 $this->db->join('cat_programas d', 'a.cve_programa = d.cve_programa', 'left');
-$this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro', 'inner'); // <-- este es de tu consulta MySQL
+//$this->db->join('catologo_rubro b', 'a.cve_rubro = b.cve_rubro', 'inner'); // <-- este es de tu consulta MySQL
 
+// FILTROS OPCIONALES (solo se agregan si existe valor)
+if (!empty($ies)) {
+    $this->db->where('a.cve_ies', $ies);
+}
 
+if (!empty($sede)) {
+    $this->db->where('a.cve_sede', $sede);
+}
 
+if (!empty($programa)) {
+    $this->db->where('a.cve_programa', $programa);
+}
 
 $this->db->group_by([
  
-   'a.cve_sede',
-    'b.rubro'
+    'a.cve_sede'
+    
 ]);
 
-
-$this->db->order_by('a.cve_ies', 'ASC');
-$this->db->order_by('b.cve_rubro', 'ASC');
+$this->db->order_by('a.nombre_alumno', 'ASC');
+$this->db->order_by('a.cve_sede', 'ASC');
+//$this->db->order_by('b.cve_rubro', 'ASC');
 
 $query = $this->db->get();
 
     return $query->result_array();
-
    
 }
 public function get_all_resultados_for_planes($ies = null, $sede = null)
