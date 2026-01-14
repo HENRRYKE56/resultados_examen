@@ -114,8 +114,10 @@ $route['reporte_ingles'] = "ingles/Exam2025/reporte";
 $route['ingles_sede'] = "ingles/Exam2025/reporte_sedes";
 $route['ingles_planes'] = "ingles/Exam2025/reporte_planes";
 
-
-
+////////////////////////////rportes evaluación Docente 2025
+$route['reporte_docente'] = "docente/Exam2025/reporte";
+$route['docente_sede'] = "docente/Exam2025/reporte_sedes";
+$route['docente_planes'] = "docente/Exam2025/reporte_planes";
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

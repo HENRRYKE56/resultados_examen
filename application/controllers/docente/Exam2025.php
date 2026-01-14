@@ -1,5 +1,5 @@
 <?php if(!defined('BASEPATH')) exit('No direct script access allowed');
-die("En Construcción");
+//die("En Construcción");
 require APPPATH . '/libraries/BaseController.php';
 require APPPATH .'/libraries/Pdf.php';
 
@@ -8,9 +8,9 @@ class Exam2025 extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('ingles/Exam_model', 'em');
+        $this->load->model('ingles/Exam_model_docente', 'em');
         $this->isLoggedIn();
-        $this->module = 'alumno';//importante revisar que esta en la tabla de menus
+        $this->module = 'Edocente';//importante revisar que esta en la tabla de menus
         $this->load->helper('form');
         $this->load->library('form_validation');
         $this->load->library('upload');
@@ -58,7 +58,7 @@ class Exam2025 extends BaseController
 
             $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados Examen de Inglés 2025';
 
-            $this->loadViews("ingles/panel", $this->global, $this->data, NULL);
+            $this->loadViews("docente/panel", $this->global, $this->data, NULL);
         }
     }
 
@@ -85,11 +85,11 @@ class Exam2025 extends BaseController
                 'value' => $this->form_validation->set_value('ies'),
             );
 
-       
+     
 
             $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados de Inglés por Sede Semestre Septiembre 2025 Enero 2026';
 
-            $this->loadViews("ingles/sedes", $this->global, $this->data, NULL);
+            $this->loadViews("docente/sedes", $this->global, $this->data, NULL);
         }
     }
      public function ies()
@@ -519,53 +519,68 @@ public function reporte()
         $programa
     );
 
+
     // ----------------------------------------------------
     // AGRUPACIÓN POR ALUMNO
     // ----------------------------------------------------
-    $resultados_por_alumno = [];
+   // He renombrado la variable a $resultados_por_grupo para que sea más descriptiva
+ $resultados_por_grupo = [];
 
-    foreach ($resultados_crudos as $fila) {
-        $nombre = $fila['nombre_alumno'];
+foreach ($resultados_crudos as $fila) {
+    // 1. CREAMOS UNA CLAVE ÚNICA concatenando examen y sede
+    $clave_grupo = $fila['nombre_docente'] . '_' . $fila['asignatura']. '_' . $fila['grupo'];
 
-        if (!isset($resultados_por_alumno[$nombre])) {
-            $nombre_archivo = $fila['ies'].'_'.$fila['sede'].'_'.$fila['programa'];
+    if (!isset($resultados_por_grupo[$clave_grupo])) {
+        // Puedes ajustar cómo se genera el nombre del archivo si es necesario
+        $nombre_archivo = $fila['institucion'] . '_' . $fila['sede']. '_' . $fila['programa'];
 
-            $resultados_por_alumno[$nombre] = [
-                'ies'       => $fila['ies'],
-                'sede'      => $fila['sede'],
-                'programa'  => $fila['programa'],
-                'nivel'     => $fila['nivel'],
-                'promedio'  => $fila['promedio'],
-                'rubros'    => []
-            ];
-        }
-
-        $resultados_por_alumno[$nombre]['rubros'] = [
-            'reading'    => $fila['reading'],
-            'vocabulary' => $fila['vocabulary'],
-            'grammar'    => $fila['grammar']
+        $resultados_por_grupo[$clave_grupo] = [
+            'ies'       => $fila['institucion'],
+            'sede'      => $fila['sede'],
+            'programa'  => $fila['programa'],
+            'grado'    => $fila['grado'],
+            'grupo'  => $fila['grupo'],
+            'promedio'  => $fila['promedio'],
+            'asignatura' => $fila['asignatura'],
+            'nombre_docente' => $fila['nombre_docente'],
+            'rubros'    => []
         ];
     }
 
-    // ----------------------------------------------------
-    // GENERACIÓN DE PDF POR ALUMNO
-    // ----------------------------------------------------
-    foreach ($resultados_por_alumno as $nombre_alumno => $datos) {
-        $pdf->AddPage();
+    // 3. USAMOS LOS NOMBRES DE COLUMNA CORRECTOS de la consulta SQL
+    $resultados_por_grupo[$clave_grupo]['rubros'] = [
+        'planeacion'    => $fila['planeacion'],
+        'saberes' => $fila['saberes'],
+        'habilidades'    => $fila['habilidades'],
+        'recursos'    => $fila['recursos'],
+        'etica'    => $fila['etica']
+    ];
+}
 
-        // ------------------------------------------------
-        // ENCABEZADO
-        // ------------------------------------------------
-        $pdf->SetFont('gothamblack', '', 11);
-        $pdf->SetXY(0, 30);
-        $pdf->writeHTML(
-            'Resultados del Examen de Inglés 7° Semestre – 2025',
-            false,
-            false,
-            false,
-            '',
-            'C'
-        );
+// ----------------------------------------------------
+// GENERACIÓN DE PDF POR GRUPO
+// ----------------------------------------------------
+// Renombramos la variable $nombre_alumno a $clave_grupo para mayor claridad
+foreach ($resultados_por_grupo as $clave_grupo => $datos) {
+    $pdf->AddPage();
+
+    // ... (El resto de tu código para generar el PDF está perfecto y no necesita cambios)
+    // ... ya que accedes a los datos a través del array $datos, que es correcto.
+
+    // ------------------------------------------------
+    // ENCABEZADO
+    // ------------------------------------------------
+    $pdf->SetFont('gothamblack', '', 11);
+    $pdf->SetXY(0, 30);
+    $pdf->writeHTML(
+        'Resultados de Evaluación Docente  Semestre  Septiembre 2025 Enero 2026',
+        false,
+        false,
+        false,
+        '',
+        'C'
+    );
+ 
 
         // ------------------------------------------------
         // DATOS GENERALES
@@ -574,17 +589,19 @@ public function reporte()
             <b>Institución:</b> {$datos['ies']}<br>
             <b>Sede:</b> {$datos['sede']}<br>
             <b>Programa:</b> {$datos['programa']}<br>
-            <b>Sustentante:</b> {$nombre_alumno}<br>
-            <b>Fecha de aplicación:</b> 10 de diciembre de 2025<br><br>
-        ";
+            <b>Asignatura:</b> {$datos['asignatura']}<br>
+            <b>Docente:</b> {$datos['nombre_docente']}<br>
+            
+        ";//nombre_docente
 
-        $pdf->SetXY(22, 40);
+        $pdf->SetXY(22, 35);
         $pdf->SetFont('gothambook', '', 10);
         $pdf->writeHTML($htmlDatos, false, false, false, '');
 
         // ------------------------------------------------
         // PUNTAJE GENERAL
         // ------------------------------------------------
+
         $valorObtenido = number_format($datos['promedio'], 2);
         $puntaje = floatval($valorObtenido);
 
@@ -613,41 +630,63 @@ public function reporte()
         $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
         // NUMERACIÓN DEL 0 AL 10
-        $pdf->SetFont('gothambook', 'B', 8);
+       $inicioX = 20;
+    $anchoBarra = 180;
+    $maxPuntaje = 18;
+    $puntaje = max(0, min(floatval($puntaje), $maxPuntaje));
 
-        for ($n = 0; $n <= 10; $n++) {
-            $xNum = $inicioX + ($anchoBarra / 10) * $n;
-            $pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
-            $pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
-        }
+    // Contorno principal
+    $pdf->SetDrawColor(110, 0, 15);
+    $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
-        // SUBDIVISIONES
-        for ($n = 0; $n < 10; $n++) {
-            $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
-            $segmentoAncho = $anchoBarra / 10;
+    // Escala principal 0–18
+    $pdf->SetFont('gothambook', 'b', 8);
+    for ($i = 0; $i <= $maxPuntaje; $i++) {
+        $x = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $pdf->Line($x, $y, $x, $y + $altoBarra);
+        $pdf->Text($x - 2, $y + $altoBarra + 3, (string)$i);
+    }
 
-            for ($j = 1; $j <= 9; $j++) {
-                $xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
-                $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
-            }
-        }
+    // Subdivisiones (cada punto dividido en 2 = medios puntos)
+    for ($i = 0; $i < $maxPuntaje; $i++) {
+        $segmentoInicio = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $segmentoAncho = $anchoBarra / $maxPuntaje;
 
-        // Indicador de puntaje
-        $posicion = $inicioX + ($puntaje / 10) * $anchoBarra;
-        $pdf->SetLineWidth(1);
-        $pdf->SetDrawColor(145, 0, 30);
-        $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
-        $pdf->SetLineWidth(0.2);
+        $xSub = $segmentoInicio + ($segmentoAncho / 2);
+        $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
+    }
+
+
+     // Indicador de puntaje
+    $posicion = $inicioX + ($puntaje / $maxPuntaje) * $anchoBarra;
+    $pdf->SetLineWidth(1);
+    $pdf->SetDrawColor(145, 0, 30);
+    $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
+    $pdf->SetLineWidth(0.2);
+
+
 
         $pdf->Ln(5);
+    
+/*
+   [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [etica] => 17.50
+            [evaluacion] => 17.50
 
+*/
         // ------------------------------------------------
         // BLOQUE POR RUBROS
         // ------------------------------------------------
         $rubros = [
-            'Reading'    => $datos['rubros']['reading'],
-            'Vocabulary' => $datos['rubros']['vocabulary'],
-            'Grammar'    => $datos['rubros']['grammar']
+            'Planeacion'    => $datos['rubros']['planeacion'],
+            'Saberes' => $datos['rubros']['saberes'],
+            'Habilidades'    => $datos['rubros']['habilidades'],
+            'Recursos'    => $datos['rubros']['recursos'],
+            'Etica'    => $datos['rubros']['etica']
+            
         ];
 
         foreach ($rubros as $nombreRubro => $valorRubro) {
@@ -893,39 +932,38 @@ private function dibujarRegletaPuntaje($pdf, $y, $puntaje, $altoBarra = 15)
 {
     $inicioX = 20;
     $anchoBarra = 180;
-    $puntaje = floatval($puntaje);
+    $maxPuntaje = 18;
+    $puntaje = max(0, min(floatval($puntaje), $maxPuntaje));
 
-    // Dibuja el contorno principal de la barra
+    // Contorno principal
     $pdf->SetDrawColor(110, 0, 15);
     $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
-    // Dibuja las líneas de la escala y los números (0, 1, 2... 10)
+    // Escala principal 0–18
     $pdf->SetFont('gothambook', 'b', 8);
-    for ($i = 0; $i <= 10; $i++) {
-        $x = $inicioX + ($anchoBarra / 10) * $i;
+    for ($i = 0; $i <= $maxPuntaje; $i++) {
+        $x = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
         $pdf->Line($x, $y, $x, $y + $altoBarra);
-        // Ajustamos la posición Y para asegurar que la numeración sea visible
-        $pdf->Text($x - 2, $y + $altoBarra + 3, $i);
+        $pdf->Text($x - 2, $y + $altoBarra + 3, (string)$i);
     }
 
-    // SUBDIVISIONES
-    for ($n = 0; $n < 10; $n++) {
-        $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
-        $segmentoAncho = $anchoBarra / 10;
+    // Subdivisiones (cada punto dividido en 2 = medios puntos)
+    for ($i = 0; $i < $maxPuntaje; $i++) {
+        $segmentoInicio = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $segmentoAncho = $anchoBarra / $maxPuntaje;
 
-        for ($j = 1; $j <= 9; $j++) {
-            $xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
-            $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
-        }
+        $xSub = $segmentoInicio + ($segmentoAncho / 2);
+        $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
     }
 
     // Indicador de puntaje
-    $posicion = $inicioX + ($puntaje / 10) * $anchoBarra;
+    $posicion = $inicioX + ($puntaje / $maxPuntaje) * $anchoBarra;
     $pdf->SetLineWidth(1);
     $pdf->SetDrawColor(145, 0, 30);
     $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
     $pdf->SetLineWidth(0.2);
 }
+
 
 function bloqueModuloConRegleta($pdf, $titulo, $puntaje, $valor, $colorTitulo)
 {
@@ -957,7 +995,7 @@ function bloqueModuloConRegleta($pdf, $titulo, $puntaje, $valor, $colorTitulo)
     $this->dibujarRegletaPuntaje($pdf, $y_regleta, $puntaje);
 
     // Añade un espacio vertical después de la regleta para que no se amontone con el siguiente bloque
-    $pdf->Ln(20);
+    $pdf->Ln(7);
 }
 
     public function get_sedes()
@@ -1026,7 +1064,7 @@ function bloqueModuloConRegleta($pdf, $titulo, $puntaje, $valor, $colorTitulo)
 
             $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados por Licenciatura Examen 2025';
 
-            $this->loadViews("ingles/planes", $this->global, $this->data, NULL);
+            $this->loadViews("docente/planes", $this->global, $this->data, NULL);
         }
     }
 }

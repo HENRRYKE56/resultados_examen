@@ -10,7 +10,7 @@ class Exam2025 extends BaseController
         parent::__construct();
         $this->load->model('ingles/Exam_model', 'em');
         $this->isLoggedIn();
-        $this->module = 'alumno';//importante revisar que esta en la tabla de menus
+        $this->module = 'ingles';//importante revisar que esta en la tabla de menus
         $this->load->helper('form');
         $this->load->library('form_validation');
         $this->load->library('upload');
