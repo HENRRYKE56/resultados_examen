@@ -132,7 +132,11 @@ class Exam2025 extends BaseController
             $this->loadViews("Exam2025/planes", $this->global, $this->data, NULL);
         }
     }
-     public function ies()
+     public function botonIES()
+        {   $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados de Conocimientosde 7° semestre por IES Semestre Septiembre 2025 Enero 2026';
+        $this->loadViews("Exam2025/ies", $this->global, NULL);
+        }
+     public function reporte_ies()
     {
          if (!$this->hasCreateAccess()) {
         $this->loadThis();

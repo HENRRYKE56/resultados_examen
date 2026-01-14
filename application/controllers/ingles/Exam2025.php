@@ -92,7 +92,11 @@ class Exam2025 extends BaseController
             $this->loadViews("ingles/sedes", $this->global, $this->data, NULL);
         }
     }
-     public function ies()
+      public function botonIES()
+        {   $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados de Inglés por IES Semestre Septiembre 2025 Enero 2026';
+        $this->loadViews("ingles/ies", $this->global, NULL);
+        }
+     public function reporte_ies()
     {
          if (!$this->hasCreateAccess()) {
         $this->loadThis();
@@ -135,10 +139,10 @@ $nombre_archivo="";
     $resultados_por_alumno = [];
 
     foreach ($resultados_crudos as $fila) {
-        $nombre = $fila['nombre_alumno'];
+        $nombre = $fila['ies'];
 
         if (!isset($resultados_por_alumno[$nombre])) {
-            $nombre_archivo = $fila['ies'].'_'.$fila['sede'];
+            $nombre_archivo = $fila['ies'];
 
             $resultados_por_alumno[$nombre] = [
                 'ies'       => $fila['ies'],

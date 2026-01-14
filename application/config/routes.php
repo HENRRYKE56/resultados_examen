@@ -108,16 +108,19 @@ $route['exam2025/get-programas'] = 'Exam2025/get_programas';
 $route['reporte'] = "Exam2025/reporte";
 $route['planes'] = "Exam2025/reporte_planes";
 $route['rsede'] = "Exam2025/reporte_sedes";
+$route['ries'] = "Exam2025/reporte_ies";
 
 ////////////////////////////rportes examenes ingles 2025
 $route['reporte_ingles'] = "ingles/Exam2025/reporte";
 $route['ingles_sede'] = "ingles/Exam2025/reporte_sedes";
 $route['ingles_planes'] = "ingles/Exam2025/reporte_planes";
+$route['ingles_ies'] = "ingles/Exam2025/reporte_ies";
 
 ////////////////////////////rportes evaluación Docente 2025
 $route['reporte_docente'] = "docente/Exam2025/reporte";
 $route['docente_sede'] = "docente/Exam2025/reporte_sedes";
 $route['docente_planes'] = "docente/Exam2025/reporte_planes";
+$route['docente_ies'] = "docente/Exam2025/reporte_ies";
 
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

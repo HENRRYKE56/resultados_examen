@@ -92,7 +92,11 @@ class Exam2025 extends BaseController
             $this->loadViews("docente/sedes", $this->global, $this->data, NULL);
         }
     }
-     public function ies()
+        public function botonIES()
+        {   $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados de Evaluación Docente Semestre Septiembre 2025 Enero 2026';
+        $this->loadViews("docente/ies", $this->global, NULL);
+        }
+     public function reporte_ies()
     {
          if (!$this->hasCreateAccess()) {
         $this->loadThis();
@@ -112,7 +116,7 @@ $nombre_archivo="";
     $pdf->setPrintFooter(true);
     $pdf->SetMargins(20, 20, 20);
 
-    $vino = array(110, 0, 20);
+    $vinos = array(110, 0, 20);
 
      $resultados_crudos = $this->em->get_all_resultados_for_ies();
 
@@ -122,7 +126,6 @@ $nombre_archivo="";
     // DATOS POST
     // ----------------------------------------------------
     $ies      = $this->input->post('ies');
-    $sede     = $this->input->post('sede');
     
     // ----------------------------------------------------
     // CONSULTA ÚNICA A BD (OPTIMIZADA)
@@ -132,61 +135,69 @@ $nombre_archivo="";
     // ----------------------------------------------------
     // AGRUPACIÓN POR ALUMNO
     // ----------------------------------------------------
-    $resultados_por_alumno = [];
 
-    foreach ($resultados_crudos as $fila) {
-        $nombre = $fila['nombre_alumno'];
+$resultados_por_grupo = [];
 
-        if (!isset($resultados_por_alumno[$nombre])) {
-            $nombre_archivo = $fila['ies'].'_'.$fila['sede'];
+foreach ($resultados_crudos as $fila) {
+    // 1. CREAMOS UNA CLAVE ÚNICA concatenando examen y sede
+    $clave_grupo = $fila['institucion'] ;
 
-            $resultados_por_alumno[$nombre] = [
-                'ies'       => $fila['ies'],
-                'sede'      => $fila['sede'],
-                'programa'  => $fila['programa'],
-                'nivel'     => $fila['nivel'],
-                'promedio'  => $fila['promedio'],
-                'rubros'    => []
-            ];
-        }
+    if (!isset($resultados_por_grupo[$clave_grupo])) {
+        // Puedes ajustar cómo se genera el nombre del archivo si es necesario
+        $nombre_archivo = $fila['institucion'] ;
 
-        $resultados_por_alumno[$nombre]['rubros'] = [
-            'reading'    => $fila['reading'],
-            'vocabulary' => $fila['vocabulary'],
-            'grammar'    => $fila['grammar']
+        $resultados_por_grupo[$clave_grupo] = [
+            'ies'       => $fila['institucion'],
+           'promedio'  => $fila['promedio'],
+            
+            'rubros'    => []
         ];
     }
 
-    // ----------------------------------------------------
-    // GENERACIÓN DE PDF POR ALUMNO
-    // ----------------------------------------------------
-    foreach ($resultados_por_alumno as $nombre_alumno => $datos) {
-        $pdf->AddPage();
+    // 3. USAMOS LOS NOMBRES DE COLUMNA CORRECTOS de la consulta SQL
+    $resultados_por_grupo[$clave_grupo]['rubros'] = [
+        'planeacion'    => $fila['planeacion'],
+        'saberes' => $fila['saberes'],
+        'habilidades'    => $fila['habilidades'],
+        'recursos'    => $fila['recursos'],
+        'etica'    => $fila['etica']
+    ];
+}
 
-        // ------------------------------------------------
-        // ENCABEZADO
-        // ------------------------------------------------
-        $pdf->SetFont('gothamblack', '', 11);
-        $pdf->SetXY(0, 30);
-        $pdf->writeHTML(
-            'Resultados del Examen de Inglés  Semestre Septiembre 2025 Enero 2026',
-            false,
-            false,
-            false,
-            '',
-            'C'
-        );
+// ----------------------------------------------------
+// GENERACIÓN DE PDF POR GRUPO
+// ----------------------------------------------------
+// Renombramos la variable $nombre_alumno a $clave_grupo para mayor claridad
+foreach ($resultados_por_grupo as $clave_grupo => $datos) {
+    $pdf->AddPage();
+
+    // ... (El resto de tu código para generar el PDF está perfecto y no necesita cambios)
+    // ... ya que accedes a los datos a través del array $datos, que es correcto.
+
+    // ------------------------------------------------
+    // ENCABEZADO
+    // ------------------------------------------------
+    $pdf->SetFont('gothamblack', '', 11);
+    $pdf->SetXY(0, 30);
+    $pdf->writeHTML(
+        'Resultados de Evaluación Docente  Semestre  Septiembre 2025 Enero 2026',
+        false,
+        false,
+        false,
+        '',
+        'C'
+    );
+ 
 
         // ------------------------------------------------
         // DATOS GENERALES
         // ------------------------------------------------
         $htmlDatos = "
             <b>Institución:</b> {$datos['ies']}<br>
-            <b>Sede:</b> {$datos['sede']}<br>
-          
            
-            <b>Fecha de aplicación:</b> 10 de diciembre de 2025<br><br>
-        ";
+            <br><br>
+          
+        ";//nombre_docente
 
         $pdf->SetXY(22, 40);
         $pdf->SetFont('gothambook', '', 10);
@@ -195,6 +206,7 @@ $nombre_archivo="";
         // ------------------------------------------------
         // PUNTAJE GENERAL
         // ------------------------------------------------
+
         $valorObtenido = number_format($datos['promedio'], 2);
         $puntaje = floatval($valorObtenido);
 
@@ -223,41 +235,63 @@ $nombre_archivo="";
         $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
         // NUMERACIÓN DEL 0 AL 10
-        $pdf->SetFont('gothambook', 'B', 8);
+       $inicioX = 20;
+    $anchoBarra = 180;
+    $maxPuntaje = 18;
+    $puntaje = max(0, min(floatval($puntaje), $maxPuntaje));
 
-        for ($n = 0; $n <= 10; $n++) {
-            $xNum = $inicioX + ($anchoBarra / 10) * $n;
-            $pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
-            $pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
-        }
+    // Contorno principal
+    $pdf->SetDrawColor(110, 0, 15);
+    $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
-        // SUBDIVISIONES
-        for ($n = 0; $n < 10; $n++) {
-            $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
-            $segmentoAncho = $anchoBarra / 10;
+    // Escala principal 0–18
+    $pdf->SetFont('gothambook', 'b', 8);
+    for ($i = 0; $i <= $maxPuntaje; $i++) {
+        $x = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $pdf->Line($x, $y, $x, $y + $altoBarra);
+        $pdf->Text($x - 2, $y + $altoBarra + 3, (string)$i);
+    }
 
-            for ($j = 1; $j <= 9; $j++) {
-                $xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
-                $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
-            }
-        }
+    // Subdivisiones (cada punto dividido en 2 = medios puntos)
+    for ($i = 0; $i < $maxPuntaje; $i++) {
+        $segmentoInicio = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $segmentoAncho = $anchoBarra / $maxPuntaje;
 
-        // Indicador de puntaje
-        $posicion = $inicioX + ($puntaje / 10) * $anchoBarra;
-        $pdf->SetLineWidth(1);
-        $pdf->SetDrawColor(145, 0, 30);
-        $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
-        $pdf->SetLineWidth(0.2);
+        $xSub = $segmentoInicio + ($segmentoAncho / 2);
+        $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
+    }
 
-        $pdf->Ln(15);
 
+     // Indicador de puntaje
+    $posicion = $inicioX + ($puntaje / $maxPuntaje) * $anchoBarra;
+    $pdf->SetLineWidth(1);
+    $pdf->SetDrawColor(145, 0, 30);
+    $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
+    $pdf->SetLineWidth(0.2);
+
+
+
+        $pdf->Ln(5);
+    
+/*
+   [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [etica] => 17.50
+            [evaluacion] => 17.50
+
+*/
         // ------------------------------------------------
         // BLOQUE POR RUBROS
         // ------------------------------------------------
         $rubros = [
-            'Reading'    => $datos['rubros']['reading'],
-            'Vocabulary' => $datos['rubros']['vocabulary'],
-            'Grammar'    => $datos['rubros']['grammar']
+            'Planeacion'    => $datos['rubros']['planeacion'],
+            'Saberes' => $datos['rubros']['saberes'],
+            'Habilidades'    => $datos['rubros']['habilidades'],
+            'Recursos'    => $datos['rubros']['recursos'],
+            'Etica'    => $datos['rubros']['etica']
+            
         ];
 
         foreach ($rubros as $nombreRubro => $valorRubro) {
@@ -272,6 +306,7 @@ $nombre_archivo="";
             );
         }
     }
+
 
     // ----------------------------------------------------
     // SALIDA PDF
@@ -322,32 +357,35 @@ $nombre_archivo="";
 // ----------------------------------------------------
 // AGRUPACIÓN POR EXAMEN Y SEDE (CORREGIDO)
 // ----------------------------------------------------
-// He renombrado la variable a $resultados_por_grupo para que sea más descriptiva
- $resultados_por_grupo = [];
+$resultados_por_grupo = [];
 
 foreach ($resultados_crudos as $fila) {
     // 1. CREAMOS UNA CLAVE ÚNICA concatenando examen y sede
-    $clave_grupo = $fila['examen'] . '_' . $fila['sede']. '_' . $fila['programa'];
+    $clave_grupo = $fila['institucion'] . '_' . $fila['sede']. '_' . $fila['programa'];
 
     if (!isset($resultados_por_grupo[$clave_grupo])) {
         // Puedes ajustar cómo se genera el nombre del archivo si es necesario
-        $nombre_archivo = $fila['ies'] . '_' . $fila['sede']. '_' . $fila['programa'];
+        $nombre_archivo = $fila['institucion'] . '_' . $fila['sede']. '_' . $fila['programa'];
 
         $resultados_por_grupo[$clave_grupo] = [
-            'ies'       => $fila['ies'],
+            'ies'       => $fila['institucion'],
             'sede'      => $fila['sede'],
             'programa'  => $fila['programa'],
-            'examen'    => $fila['examen'],
+            'grado'    => $fila['grado'],
+            'grupo'  => $fila['grupo'],
             'promedio'  => $fila['promedio'],
+            
             'rubros'    => []
         ];
     }
 
     // 3. USAMOS LOS NOMBRES DE COLUMNA CORRECTOS de la consulta SQL
     $resultados_por_grupo[$clave_grupo]['rubros'] = [
-        'reading'    => $fila['reading'],
-        'vocabulary' => $fila['vocabulary'],
-        'grammar'    => $fila['grammar']
+        'planeacion'    => $fila['planeacion'],
+        'saberes' => $fila['saberes'],
+        'habilidades'    => $fila['habilidades'],
+        'recursos'    => $fila['recursos'],
+        'etica'    => $fila['etica']
     ];
 }
 
@@ -367,35 +405,33 @@ foreach ($resultados_por_grupo as $clave_grupo => $datos) {
     $pdf->SetFont('gothamblack', '', 11);
     $pdf->SetXY(0, 30);
     $pdf->writeHTML(
-        'Resultados del Examen de Inglés  Semestre  Septiembre 2025 Enero 2026',
+        'Resultados de Evaluación Docente  Semestre  Septiembre 2025 Enero 2026',
         false,
         false,
         false,
         '',
         'C'
     );
+ 
 
-    // ------------------------------------------------
-    // DATOS GENERALES
-    // ------------------------------------------------
-    $htmlDatos = "
-        <b>Institución:</b> {$datos['ies']}<br>
-        <b>Sede:</b> {$datos['sede']}<br>
-        <b>Programa:</b> {$datos['programa']}<br>
-        <b>Examen:</b> {$datos['examen']}<br>
-       
-        <b>Fecha de aplicación:</b> 10 de diciembre de 2025<br><br>
-    ";
+        // ------------------------------------------------
+        // DATOS GENERALES
+        // ------------------------------------------------
+        $htmlDatos = "
+            <b>Institución:</b> {$datos['ies']}<br>
+            <b>Sede:</b> {$datos['sede']}<br>
+            <b>Programa:</b> {$datos['programa']}<br>
+          
+        ";//nombre_docente
 
-    $pdf->SetXY(22, 40);
-    $pdf->SetFont('gothambook', '', 10);
-    $pdf->writeHTML($htmlDatos, false, false, false, '');
-
-  
+        $pdf->SetXY(22, 35);
+        $pdf->SetFont('gothambook', '', 10);
+        $pdf->writeHTML($htmlDatos, false, false, false, '');
 
         // ------------------------------------------------
         // PUNTAJE GENERAL
         // ------------------------------------------------
+
         $valorObtenido = number_format($datos['promedio'], 2);
         $puntaje = floatval($valorObtenido);
 
@@ -424,41 +460,63 @@ foreach ($resultados_por_grupo as $clave_grupo => $datos) {
         $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
         // NUMERACIÓN DEL 0 AL 10
-        $pdf->SetFont('gothambook', 'B', 8);
+       $inicioX = 20;
+    $anchoBarra = 180;
+    $maxPuntaje = 18;
+    $puntaje = max(0, min(floatval($puntaje), $maxPuntaje));
 
-        for ($n = 0; $n <= 10; $n++) {
-            $xNum = $inicioX + ($anchoBarra / 10) * $n;
-            $pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
-            $pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
-        }
+    // Contorno principal
+    $pdf->SetDrawColor(110, 0, 15);
+    $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
-        // SUBDIVISIONES
-        for ($n = 0; $n < 10; $n++) {
-            $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
-            $segmentoAncho = $anchoBarra / 10;
+    // Escala principal 0–18
+    $pdf->SetFont('gothambook', 'b', 8);
+    for ($i = 0; $i <= $maxPuntaje; $i++) {
+        $x = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $pdf->Line($x, $y, $x, $y + $altoBarra);
+        $pdf->Text($x - 2, $y + $altoBarra + 3, (string)$i);
+    }
 
-            for ($j = 1; $j <= 9; $j++) {
-                $xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
-                $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
-            }
-        }
+    // Subdivisiones (cada punto dividido en 2 = medios puntos)
+    for ($i = 0; $i < $maxPuntaje; $i++) {
+        $segmentoInicio = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $segmentoAncho = $anchoBarra / $maxPuntaje;
 
-        // Indicador de puntaje
-        $posicion = $inicioX + ($puntaje / 10) * $anchoBarra;
-        $pdf->SetLineWidth(1);
-        $pdf->SetDrawColor(145, 0, 30);
-        $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
-        $pdf->SetLineWidth(0.2);
+        $xSub = $segmentoInicio + ($segmentoAncho / 2);
+        $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
+    }
+
+
+     // Indicador de puntaje
+    $posicion = $inicioX + ($puntaje / $maxPuntaje) * $anchoBarra;
+    $pdf->SetLineWidth(1);
+    $pdf->SetDrawColor(145, 0, 30);
+    $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
+    $pdf->SetLineWidth(0.2);
+
+
 
         $pdf->Ln(5);
+    
+/*
+   [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [etica] => 17.50
+            [evaluacion] => 17.50
 
+*/
         // ------------------------------------------------
         // BLOQUE POR RUBROS
         // ------------------------------------------------
         $rubros = [
-            'Reading'    => $datos['rubros']['reading'],
-            'Vocabulary' => $datos['rubros']['vocabulary'],
-            'Grammar'    => $datos['rubros']['grammar']
+            'Planeacion'    => $datos['rubros']['planeacion'],
+            'Saberes' => $datos['rubros']['saberes'],
+            'Habilidades'    => $datos['rubros']['habilidades'],
+            'Recursos'    => $datos['rubros']['recursos'],
+            'Etica'    => $datos['rubros']['etica']
+            
         ];
 
         foreach ($rubros as $nombreRubro => $valorRubro) {
@@ -748,27 +806,31 @@ $nombre_archivo="";
 
 foreach ($resultados_crudos as $fila) {
     // 1. CREAMOS UNA CLAVE ÚNICA concatenando examen y sede
-    $clave_grupo = $fila['examen'] . '_' . $fila['sede'];
+    $clave_grupo = $fila['institucion'] . '_' . $fila['sede'];
 
     if (!isset($resultados_por_grupo[$clave_grupo])) {
         // Puedes ajustar cómo se genera el nombre del archivo si es necesario
-        $nombre_archivo = $fila['ies'] . '_' . $fila['sede'];
+        $nombre_archivo = $fila['institucion'] . '_' . $fila['sede'];
 
         $resultados_por_grupo[$clave_grupo] = [
-            'ies'       => $fila['ies'],
+            'ies'       => $fila['institucion'],
             'sede'      => $fila['sede'],
-            'programa'  => $fila['programa'],
-            'examen'    => $fila['examen'],
+          
+            'grado'    => $fila['grado'],
+            'grupo'  => $fila['grupo'],
             'promedio'  => $fila['promedio'],
+            
             'rubros'    => []
         ];
     }
 
     // 3. USAMOS LOS NOMBRES DE COLUMNA CORRECTOS de la consulta SQL
     $resultados_por_grupo[$clave_grupo]['rubros'] = [
-        'reading'    => $fila['reading'],
-        'vocabulary' => $fila['vocabulary'],
-        'grammar'    => $fila['grammar']
+        'planeacion'    => $fila['planeacion'],
+        'saberes' => $fila['saberes'],
+        'habilidades'    => $fila['habilidades'],
+        'recursos'    => $fila['recursos'],
+        'etica'    => $fila['etica']
     ];
 }
 
@@ -788,35 +850,33 @@ foreach ($resultados_por_grupo as $clave_grupo => $datos) {
     $pdf->SetFont('gothamblack', '', 11);
     $pdf->SetXY(0, 30);
     $pdf->writeHTML(
-        'Resultados del Examen de Inglés  Semestre  Septiembre 2025 Enero 2026',
+        'Resultados de Evaluación Docente  Semestre  Septiembre 2025 Enero 2026',
         false,
         false,
         false,
         '',
         'C'
     );
+ 
 
-    // ------------------------------------------------
-    // DATOS GENERALES
-    // ------------------------------------------------
-    $htmlDatos = "
-        <b>Institución:</b> {$datos['ies']}<br>
-        <b>Sede:</b> {$datos['sede']}<br>
-        
-        <b>Examen:</b> {$datos['examen']}<br>
-       
-        <b>Fecha de aplicación:</b> 10 de diciembre de 2025<br><br>
-    ";
+        // ------------------------------------------------
+        // DATOS GENERALES
+        // ------------------------------------------------
+        $htmlDatos = "
+            <b>Institución:</b> {$datos['ies']}<br>
+            <b>Sede:</b> {$datos['sede']}<br>
+         
+          
+        ";//nombre_docente
 
-    $pdf->SetXY(22, 40);
-    $pdf->SetFont('gothambook', '', 10);
-    $pdf->writeHTML($htmlDatos, false, false, false, '');
-
-  
+        $pdf->SetXY(22, 35);
+        $pdf->SetFont('gothambook', '', 10);
+        $pdf->writeHTML($htmlDatos, false, false, false, '');
 
         // ------------------------------------------------
         // PUNTAJE GENERAL
         // ------------------------------------------------
+
         $valorObtenido = number_format($datos['promedio'], 2);
         $puntaje = floatval($valorObtenido);
 
@@ -845,41 +905,63 @@ foreach ($resultados_por_grupo as $clave_grupo => $datos) {
         $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
         // NUMERACIÓN DEL 0 AL 10
-        $pdf->SetFont('gothambook', 'B', 8);
+       $inicioX = 20;
+    $anchoBarra = 180;
+    $maxPuntaje = 18;
+    $puntaje = max(0, min(floatval($puntaje), $maxPuntaje));
 
-        for ($n = 0; $n <= 10; $n++) {
-            $xNum = $inicioX + ($anchoBarra / 10) * $n;
-            $pdf->Text($xNum - 2.5, $y + $altoBarra + 2, (string)$n);
-            $pdf->Line($xNum, $y, $xNum, $y + $altoBarra);
-        }
+    // Contorno principal
+    $pdf->SetDrawColor(110, 0, 15);
+    $pdf->Rect($inicioX, $y, $anchoBarra, $altoBarra);
 
-        // SUBDIVISIONES
-        for ($n = 0; $n < 10; $n++) {
-            $segmentoInicio = $inicioX + ($anchoBarra / 10) * $n;
-            $segmentoAncho = $anchoBarra / 10;
+    // Escala principal 0–18
+    $pdf->SetFont('gothambook', 'b', 8);
+    for ($i = 0; $i <= $maxPuntaje; $i++) {
+        $x = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $pdf->Line($x, $y, $x, $y + $altoBarra);
+        $pdf->Text($x - 2, $y + $altoBarra + 3, (string)$i);
+    }
 
-            for ($j = 1; $j <= 9; $j++) {
-                $xSub = $segmentoInicio + ($segmentoAncho / 10) * $j;
-                $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
-            }
-        }
+    // Subdivisiones (cada punto dividido en 2 = medios puntos)
+    for ($i = 0; $i < $maxPuntaje; $i++) {
+        $segmentoInicio = $inicioX + ($anchoBarra / $maxPuntaje) * $i;
+        $segmentoAncho = $anchoBarra / $maxPuntaje;
 
-        // Indicador de puntaje
-        $posicion = $inicioX + ($puntaje / 10) * $anchoBarra;
-        $pdf->SetLineWidth(1);
-        $pdf->SetDrawColor(145, 0, 30);
-        $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
-        $pdf->SetLineWidth(0.2);
+        $xSub = $segmentoInicio + ($segmentoAncho / 2);
+        $pdf->Line($xSub, $y, $xSub, $y + ($altoBarra / 2));
+    }
+
+
+     // Indicador de puntaje
+    $posicion = $inicioX + ($puntaje / $maxPuntaje) * $anchoBarra;
+    $pdf->SetLineWidth(1);
+    $pdf->SetDrawColor(145, 0, 30);
+    $pdf->Line($posicion, $y - 2, $posicion, $y + $altoBarra + 2);
+    $pdf->SetLineWidth(0.2);
+
+
 
         $pdf->Ln(5);
+    
+/*
+   [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [] => 17.50
+            [etica] => 17.50
+            [evaluacion] => 17.50
 
+*/
         // ------------------------------------------------
         // BLOQUE POR RUBROS
         // ------------------------------------------------
         $rubros = [
-            'Reading'    => $datos['rubros']['reading'],
-            'Vocabulary' => $datos['rubros']['vocabulary'],
-            'Grammar'    => $datos['rubros']['grammar']
+            'Planeacion'    => $datos['rubros']['planeacion'],
+            'Saberes' => $datos['rubros']['saberes'],
+            'Habilidades'    => $datos['rubros']['habilidades'],
+            'Recursos'    => $datos['rubros']['recursos'],
+            'Etica'    => $datos['rubros']['etica']
+            
         ];
 
         foreach ($rubros as $nombreRubro => $valorRubro) {
@@ -894,6 +976,7 @@ foreach ($resultados_por_grupo as $clave_grupo => $datos) {
             );
         }
     }
+
 
     // ----------------------------------------------------
     // SALIDA PDF
