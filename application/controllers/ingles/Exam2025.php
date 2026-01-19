@@ -55,7 +55,12 @@ class Exam2025 extends BaseController
                 'class' => 'form-control',
                 'options' => array('' => 'Seleccione'),
             );
-
+ $this->data['pass'] = array(
+                'name'  => 'pass',
+                'id'    => 'pass',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione', 'Pass' => 'Pass', 'No Pass' => 'No Pass'),
+            );
             $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados Examen de Inglés 2025';
 
             $this->loadViews("ingles/panel", $this->global, $this->data, NULL);
