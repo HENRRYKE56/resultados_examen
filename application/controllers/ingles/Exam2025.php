@@ -108,10 +108,13 @@ public function estadistico()
                 'class' => 'form-control',
                 'options' => array('' => 'Seleccione', 'Pass' => 'Pass', 'No Pass' => 'No Pass'),
             );
-            $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados Examen de Inglés 2025';
+            $this->global['pageTitle'] = 'SEIEM : Reporte Estadístico de Resultados Examen de Inglés 2025';
 
-            $this->loadViews("ingles/estadistico", $this->global, NULL, NULL);
+            $this->loadViews("ingles/estadistico", $this->global, $this->data, NULL);
         }
+    }
+    public function reporte_estadistico(){
+        die("camos bien");
     }
    public function sede()
     {
