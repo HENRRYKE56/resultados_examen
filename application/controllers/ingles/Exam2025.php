@@ -881,13 +881,11 @@ function determinarRegla($puntaje) {
     $puntaje = floatval($puntaje);
     
     if ($puntaje >= 9.0) {
-        return ["texto" => "Excelente", "color" => [0, 128, 0]]; // Verde
-    } elseif ($puntaje >= 7.5) {
-        return ["texto" => "Notable", "color" => [0, 0, 255]]; // Azul
-    } elseif ($puntaje >= 6.0) {
-        return ["texto" => "Aprobado", "color" => [255, 165, 0]]; // Naranja
-    } else {
-        return ["texto" => "Necesita mejorar", "color" => [255, 0, 0]]; // Rojo
+        return ["texto" => "Sobresaliente", "color" => [0, 128, 0]]; // Verde
+    } elseif ($puntaje >= 7.0) {
+        return ["texto" => "Suficiente", "color" => [0, 0, 255]]; // Azul
+    }  else {
+        return ["texto" => "No Acredito", "color" => [255, 0, 0]]; // Rojo
     }
 }
 
