@@ -66,7 +66,53 @@ class Exam2025 extends BaseController
             $this->loadViews("ingles/panel", $this->global, $this->data, NULL);
         }
     }
+public function estadistico()
+    {
+        if(!$this->hasCreateAccess())
+        { 
+            $this->loadThis();
+        }
+        else
+        {
+             $ies = $this->em->ies();
+            $options1 = array();
+            foreach ($ies as $ie) {   
+                $options1[$ie['cve_ies']] = $ie['ies'];
+            }
+            $ies = array('' => 'Seleccione') + $options1;
 
+            $this->data['ies'] = array(
+                'name'  => 'ies',
+                'id'    => 'ies',
+                'class' => 'form-control',
+                'options' => $ies,
+                'value' => $this->form_validation->set_value('ies'),
+            );
+
+            $this->data['sede'] = array(
+                'name'  => 'sede',
+                'id'    => 'sede',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione'),
+            );
+
+            $this->data['programa'] = array(
+                'name'  => 'programa',
+                'id'    => 'programa',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione'),
+            );
+ $this->data['pass'] = array(
+                'name'  => 'pass',
+                'id'    => 'pass',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione', 'Pass' => 'Pass', 'No Pass' => 'No Pass'),
+            );
+            $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados Examen de Inglés 2025';
+
+            $this->loadViews("ingles/estadistico", $this->global, NULL, NULL);
+        }
+    }
    public function sede()
     {
         if(!$this->hasCreateAccess())
