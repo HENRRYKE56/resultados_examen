@@ -45,7 +45,12 @@
                                       </div>
                                 </div>
                                 
-                               
+                               <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="description">Estado del Alumno </label>
+                                        <?php echo  form_dropdown($pass) ?>
+                                      </div>
+                                </div>
                         
                            </div><!-- /.box-body -->
                           
