@@ -87,11 +87,415 @@ class Exam2025 extends BaseController
 
      
 
-            $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados de Inglés por Sede Semestre Septiembre 2025 Enero 2026';
+            $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados de Evaluación Docente por Sede Semestre Septiembre 2025 Enero 2026';
 
             $this->loadViews("docente/sedes", $this->global, $this->data, NULL);
         }
     }
+
+public function estadistico()
+    {
+        if(!$this->hasCreateAccess())
+        { 
+            $this->loadThis();
+        }
+        else
+        {
+             $ies = $this->em->ies();
+            $options1 = array();
+            foreach ($ies as $ie) {   
+                $options1[$ie['cve_ies']] = $ie['ies'];
+            }
+            $ies = array('' => 'Seleccione') + $options1;
+
+            $this->data['ies'] = array(
+                'name'  => 'ies',
+                'id'    => 'ies',
+                'class' => 'form-control',
+                'options' => $ies,
+                'value' => $this->form_validation->set_value('ies'),
+            );
+
+            $this->data['sede'] = array(
+                'name'  => 'sede',
+                'id'    => 'sede',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione'),
+            );
+
+            $this->data['programa'] = array(
+                'name'  => 'programa',
+                'id'    => 'programa',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione'),
+            );
+ $this->data['pass'] = array(
+                'name'  => 'pass',
+                'id'    => 'pass',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione', 'Pass' => 'Pass', 'No Pass' => 'No Pass'),
+            );
+            $this->global['pageTitle'] = 'SEIEM : Reporte Estadístico de Resultados Examen de Inglés 2025';
+
+            $this->loadViews("docente/estadistico", $this->global, $this->data, NULL);
+        }
+    }
+
+///estadistico
+public function contarPorCategoria($datos, $campo)
+{
+    $conteo = [
+        'Reprobado (0 - 6.9)' => 0,
+        'Suficiente (7 - 8.9)' => 0,
+        'Excelente (> 9)' => 0
+    ];
+
+    foreach ($datos as $registro) {
+        if (!isset($registro[$campo], $registro['total'])) continue;
+
+        $valor = (float)$registro[$campo];
+        $alumnos = (int)$registro['total'];
+
+        if ($valor < 7) {
+            $conteo['Reprobado (0 - 6.9)'] += $alumnos;
+        } elseif ($valor < 9) {
+            $conteo['Suficiente (7 - 8.9)'] += $alumnos;
+        } else {
+            $conteo['Excelente (> 9)'] += $alumnos;
+        }
+    }
+
+    return $conteo;
+}
+function calcularEstadisticasPorExamen($datos_examen)
+{
+    $total = 0;
+    $aprobados = 0;
+
+    foreach ($datos_examen as $registro) {
+        $total += (int)$registro['total'];
+
+       
+            $aprobados += (int)$registro['total'];
+        
+    }
+
+    return [
+        'total' => $total,
+        'aprobados' => $aprobados,
+        'reprobados' => $total - $aprobados,
+        'porcentaje' => $total > 0 ? round(($aprobados / $total) * 100, 2) : 0
+    ];
+}
+
+
+
+function calcularEstadisticasGenerales($datos)
+{
+    if (empty($datos)) {
+        return [
+            'total_alumnos' => 0,
+            'aprobados' => 0,
+            'reprobados' => 0,
+            'porcentaje_aprobacion' => 0,
+            'promedio_planeacion' => 0,
+            'promedio_saberes' => 0,
+            'promedio_habilidades' => 0,
+            'promedio_recursos' => 0
+        ];
+    }
+
+    $totalAlumnos = 0;
+    $aprobados = 0;
+    $sumaPromedio = 0;
+    $sumaPlaneacion = 0;
+    $sumaSaberes = 0;
+    $sumaHabilidades = 0;
+    $sunaRecursos = 0;
+
+    foreach ($datos as $registro) {
+        $totalAlumnos += (int)$registro['total'];
+
+       
+            $aprobados += (int)$registro['total'];
+        
+   
+        $sumaPromedio += $registro['promedio'] * $registro['total'];
+        $sumaPlaneacion += $registro['planeacion'] * $registro['total'];
+        $sumaSaberes += $registro['saberes'] * $registro['total'];
+        $sumaHabilidades += $registro['habilidades'] * $registro['total'];
+        $sunaRecursos += $registro['recursos'] * $registro['total'];
+    }
+  
+    return [
+        'total_alumnos' => $totalAlumnos,
+        'aprobados' => $aprobados,
+        'reprobados' => $totalAlumnos - $aprobados,
+        'porcentaje_aprobacion' => $totalAlumnos > 0 ? round(($aprobados / $totalAlumnos) * 100, 2) : 0,
+        'promedio_general' => $totalAlumnos > 0 ? round($sumaPromedio / $totalAlumnos, 2) : 0,
+        'promedio_planeacion' => $totalAlumnos > 0 ? round($sumaPlaneacion / $totalAlumnos, 2) : 0,
+        'promedio_saberes' => $totalAlumnos > 0 ? round($sumaSaberes / $totalAlumnos, 2) : 0,
+        'promedio_habilidades' => $totalAlumnos > 0 ? round($sumaHabilidades / $totalAlumnos, 2) : 0,
+        'promedio_recursos' => $totalAlumnos > 0 ? round($sunaRecursos / $totalAlumnos, 2) : 0
+    ];
+}
+
+
+function generarTablaDistribucion($titulo,  $conteo)
+{
+    $html = '<h3>' . htmlspecialchars($titulo) . '</h3>';
+    $html .= '<table border="1" cellpadding="3" cellspacing="0">
+                <thead style="background-color:#f2f2f2; font-weight:bold;">
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Cantidad de Alumnos</th>
+                    </tr>
+                </thead>
+                <tbody>';
+    
+    foreach ($conteo as $categoria => $cantidad) {
+        $html .= '<tr>
+                    <td>' . htmlspecialchars($categoria) . '</td>
+                    <td style="text-align:center;">' . $cantidad . '</td>
+                  </tr>';
+    }
+    
+    $html .= '</tbody></table><br/>';
+    return $html;
+}
+
+
+function generarTablaGeneral( $estadisticas)
+{
+    $html = '<h3>Resumen General de Resultados</h3>';
+    $html .= '<table border="1" cellpadding="2" cellspacing="0">
+                <thead style="background-color:#f2f2f2; font-gothambook:bold;">
+                    <tr>
+                        <th>Indicador</th>
+                        <th>Valor</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+           
+
+   
+    $html .= '<tr><td>Total de Alumnos Evaluados</td><td style="text-align:center;">' . $estadisticas['total_alumnos'] . '</td></tr>';
+    $html .= '<tr><td>Alumnos Aprobados (Pass)</td><td style="text-align:center;">' . $estadisticas['aprobados'] . '</td></tr>';
+    $html .= '<tr><td>Alumnos Reprobados (No Pass)</td><td style="text-align:center;">' . $estadisticas['reprobados'] . '</td></tr>';
+    $html .= '<tr><td>Porcentaje de Aprobación</td><td style="text-align:center;">' . $estadisticas['porcentaje_aprobacion'] . '%</td></tr>';
+    $html .= '<tr><td>Promedio General de Calificaciones</td><td style="text-align:center;">' . $estadisticas['promedio_general'] . '</td></tr>';
+    $html .= '<tr><td>Promedio de Planeación</td><td style="text-align:center;">' . $estadisticas['promedio_planeacion'] . '</td></tr>';
+    $html .= '<tr><td>Promedio de Saberes</td><td style="text-align:center;">' . $estadisticas['promedio_saberes'] . '</td></tr>';
+    $html .= '<tr><td>Promedio de Habilidades</td><td style="text-align:center;">' . $estadisticas['promedio_habilidades'] . '</td></tr>';
+    $html .= '<tr><td>Promedio de Recursos</td><td style="text-align:center;">' . $estadisticas['promedio_recursos'] . '</td></tr>';
+
+    $html .= '</tbody></table><br/>';
+    return $html;
+}
+
+
+function agruparPorExamen( $datos)
+{
+    $datos_agrupados = [];
+   
+    foreach ($datos as $registro) {
+        $tipo_examen = $registro['programa'];
+        // Si el tipo de examen no existe como clave, lo creamos
+        if (!isset($datos_agrupados[$tipo_examen])) {
+            $datos_agrupados[$tipo_examen] = [];
+        }
+        // Añadimos el registro completo al grupo correspondiente
+        $datos_agrupados[$tipo_examen][] = $registro;
+    }
+    return $datos_agrupados;
+}
+
+
+function generarTablaPorExamen($datos_examen,  $titulo_examen)
+{
+    // Si no hay datos para este examen, no mostramos nada.
+    if (empty($datos_examen)) {
+        return '';
+    }
+ 
+
+    $html = '<h2>Resultados para Examen: ' . htmlspecialchars($titulo_examen) . '</h2>';
+    $html .= '<table border="1" cellpadding="4" cellspacing="0">
+                <thead style="background-color:#f2f2f2; font-gothambook:bold;">
+                    <tr>
+                        <th>IES</th>
+                        <th>Sede</th>
+                        <th>Programa</th>
+                        <th>Semestre</th>
+                        <th>Prom. Planeación</th>
+                        <th>Prom. Saberes</th>
+                        <th>Prom. Habilidades</th>
+                        <th>Prom. Recursos</th>
+                        <th>Promedio General</th>
+                        <th>Nivel</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+
+
+                
+    foreach ($datos_examen as $registro) {
+        // Determinar el color de la fila según el nivel
+        $style_fila = ($registro['nivel'] === 'No Pass') ? 'style="background-color:#ffdddd;"' : '';
+        
+        $html .= '<tr ' . $style_fila . '>
+                    <td>' . htmlspecialchars($registro['ies']) . '</td>
+                    <td>' . htmlspecialchars($registro['sede']) . '</td>
+                    <td>' . htmlspecialchars($registro['programa']) . '</td>
+                    <td>' . htmlspecialchars($registro['cve_semestre']) . '</td>
+                    <td style="text-align:center;">' . $registro['planeacion'] . '</td>
+                    <td style="text-align:center;">' . $registro['saberes'] . '</td>
+                    <td style="text-align:center;">' . $registro['habilidades'] . '</td>
+                    <td style="text-align:center;">' . $registro['recursos'] . '</td>
+                    <td style="text-align:center; font-gothambook:bold;">' . $registro['promedio'] . '</td>
+                    <td style="text-align:center;">' . htmlspecialchars($registro['nivel']) . '</td>
+                  </tr>';
+    }
+
+    $html .= '</tbody></table><br/>';
+    return $html;
+}
+
+
+
+
+    /////////////////////////
+
+    public function reporte_estadistico(){
+
+     if (!$this->hasCreateAccess()) {
+        $this->loadThis();
+        return;
+    }
+
+    $nombre_archivo = "";
+
+    // ----------------------------------------------------
+    // CONFIGURACIÓN PDF
+    // ----------------------------------------------------
+    $pdf = new PDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
+    $pdf->SetCreator('HLANDEROS');
+    $pdf->SetAuthor('HLANDEROS');
+    $pdf->SetTitle('Reporte de Examen de Conocimientos 2025');
+    $pdf->setPrintHeader(true);
+    $pdf->setPrintFooter(true);
+    $pdf->SetMargins(20, 20, 20);
+
+    $vinos = [110, 0, 20];
+
+    // ----------------------------------------------------
+    // DATOS POST
+    // ----------------------------------------------------
+    $ies      = $this->input->post('ies');
+    $sede     = $this->input->post('sede');
+    $programa = $this->input->post('programa');
+
+    // ----------------------------------------------------
+    // CONSULTA ÚNICA A BD (OPTIMIZADA)
+    // ----------------------------------------------------
+    $resultados_crudos = $this->em->get_all_resultados_for_planes(
+        $ies,
+        $sede,
+        $programa
+    );
+  
+
+
+$conteo_grammar = $this->contarPorCategoria($resultados_crudos, 'grammar');
+ $conteo_reading = $this->contarPorCategoria($resultados_crudos, 'reading');
+ $conteo_vocabulary = $this->contarPorCategoria($resultados_crudos, 'vocabulary');
+ $conteo_promedio = $this->contarPorCategoria($resultados_crudos, 'promedio');
+ $estadisticas_generales =$this->calcularEstadisticasGenerales($resultados_crudos);
+// 2. Procesar los datos para agruparlos por examen
+$datos_por_examen = $this->agruparPorExamen($resultados_crudos);
+
+
+
+ $html_reporte = '
+<style>
+    h1 { color: #003366; }
+    h2 { color: #005599; }
+    h3 { color: #0077BB; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-family: gothambook; }
+    th, td { border: 1px solid #ddd; padding: 4px; }
+    thead th { background-color: #f2f2f2; text-align: left; }
+</style>
+<h1>Reporte Estadístico de Resultados de Examen de Inglés por Tipo de Examen</h1>';
+
+
+
+
+ $html_reporte .= '<b><ul>';
+ $html_reporte .= '<li><strong>IES:</strong> ' . ($resultados_crudos[0]['institucion'] ? htmlspecialchars($resultados_crudos[0]['institucion']) : 'Todos') . '</li>';
+ $html_reporte .= '<li><strong>Sede:</strong> ' . (!empty($resultados_crudos[0]['sede']) ? htmlspecialchars($resultados_crudos[0]['sede']) : 'Todas') . '</li>';
+ $html_reporte .= '<li><strong>Programa:</strong> ' . (!empty($resultados_crudos[0]['programa']) ? htmlspecialchars($resultados_crudos[0]['programa']   ) : 'Todos') . '</li>';
+ //$html_reporte .= '<li><strong>Nivel:</strong> ' . (!empty($resultados_crudos[0]['nivel']) ? htmlspecialchars($resultados_crudos[0]['nivel']   ) : 'Todos') . '</li>';
+ $html_reporte .= '</ul></b>';
+
+// Añadir las tablas al reporte
+ $html_reporte .= $this->generarTablaDistribucion('Distribución de Calificaciones - Grammar', $conteo_grammar);
+ $html_reporte .= $this->generarTablaDistribucion('Distribución de Calificaciones - Reading', $conteo_reading);
+ $html_reporte .= $this->generarTablaDistribucion('Distribución de Calificaciones - Vocabulary', $conteo_vocabulary);
+ $html_reporte .= $this->generarTablaDistribucion('Distribución del Promedio General', $conteo_promedio);
+ $html_reporte .= $this->generarTablaGeneral($estadisticas_generales);
+    
+$pdf->AddPage();
+
+if ($pdf->getPage() > 1) {
+    $pdf->SetXY(22, 30);
+    $pdf->setPageMark(); // ← MUY IMPORTANTE
+}
+
+      
+
+
+
+
+
+
+foreach ($datos_por_examen as $tipo_examen => $datos) {
+
+    $stats = $this->calcularEstadisticasPorExamen($datos);
+
+    $html_reporte .= '<h2>Examen: ' . $tipo_examen . '</h2>';
+    $html_reporte .= '<ul>
+        <li><strong>Total de alumnos:</strong> ' . $stats['total'] . '</li>
+        <li><strong>Aprobados:</strong> ' . $stats['aprobados'] . '</li>
+        <li><strong>Reprobados:</strong> ' . $stats['reprobados'] . '</li>
+        <li><strong>% Aprobación:</strong> ' . $stats['porcentaje'] . '%</li>
+    </ul>';
+
+    $html_reporte .= $this->generarTablaPorExamen($datos, $tipo_examen);
+}
+
+
+
+
+
+
+
+
+
+  $pdf->SetXY(22, 30);
+        $pdf->SetFont('gothambook', '', 9);
+        
+// Escribir el contenido HTML
+ $pdf->writeHTML($html_reporte, true, false, true, false, '');
+
+// Cerrar y generar el PDF
+// 'I' para mostrar en el navegador, 'D' para forzar la descarga, 'F' para guardar en un archivo
+ $pdf->Output('reporte_estadistico.pdf', 'I');
+
+    }
+
+
         public function botonIES()
         {   $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados de Evaluación Docente Semestre Septiembre 2025 Enero 2026';
         $this->loadViews("docente/ies", $this->global, NULL);

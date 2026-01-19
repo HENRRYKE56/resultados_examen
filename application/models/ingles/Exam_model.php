@@ -259,9 +259,10 @@ $query = $this->db->get();
     return $query->result_array();
    
 }
-public function get_all_resultados_for_planes($ies = null, $sede = null)
+
+public function get_all_resultados_for_planes($ies = null, $sede = null, $programa = null)
 {
-     $this->db->select("a.cve_sede,
+     $this->db->select("COUNT(a.cve_ies)total,a.cve_sede,
     a.examen, 
     a.cve_semestre, 
     ROUND(AVG(a.grammar), 2) AS grammar, 
@@ -269,7 +270,7 @@ public function get_all_resultados_for_planes($ies = null, $sede = null)
     ROUND(AVG(a.reading), 2) AS reading, 
     ROUND(AVG(a.promedio), 2) AS promedio, 
     b2.ies, 
-    c.sede, 
+    c.sede, nivel,
     d.programa
 ", FALSE); // El FALSE es importante para no escapar las funciones SQL
 
@@ -288,6 +289,9 @@ if (!empty($sede)) {
     $this->db->where('a.cve_sede', $sede);
 }
 
+if (!empty($programa)) {
+    $this->db->where('a.cve_programa', $programa);
+}
 
  $this->db->group_by(['a.cve_sede', 'a.examen','a.cve_programa']);
 
