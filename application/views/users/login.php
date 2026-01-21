@@ -20,7 +20,7 @@
   <body class="hold-transition login-page">
     <div class="login-box">
       <div class="login-logo">
-        <a href="#"><b>SEIEM</b><br>Resultados de Evalaución de Conocimientos</a>
+        <a href="#"><b>SEIEM</b><br>Resultados de Evalauciones 2025</a>
       </div><!-- /.login-logo -->
       <div class="login-box-body">
         <p class="login-box-msg">Iniciar Sesión</p>
@@ -52,7 +52,7 @@
         <?php } ?>
         <form action="<?php echo base_url(); ?>loginMe" method="post">
           <div class="form-group has-feedback">
-            <input type="text" class="form-control" placeholder="RFC" name="email" required />
+            <input type="text" class="form-control" placeholder="Usuario" name="email" required />
             <span class="glyphicon glyphicon-users form-control-feedback"></span>
           </div>
           <div class="form-group has-feedback">
