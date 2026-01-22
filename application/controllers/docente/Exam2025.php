@@ -273,8 +273,8 @@ private function distribucionPorRangos($datos)
             <strong>IES:</strong> ' . $grupo['institucion'] . '<br>
             <strong>Sede:</strong> ' . $grupo['sede'] . '<br>
             <strong>Total de alumnos que evaluaron:</strong> ' . $grupo['total_alumnos'] . '<br>
-            <strong>Aprobados:</strong> ' . $grupo['aprobados'] . ' |
-            <strong>Reprobados:</strong> ' . $grupo['reprobados'] . '
+            <strong>Alumnos que les gusto la asignatura:</strong> ' . $grupo['aprobados'] . ' |
+            <strong>Alumnos que <b>NO</b> les gusto la asignatura:</strong> ' . $grupo['reprobados'] . '
         </p>
 
      <table border="1" cellpadding="4" cellspacing="0" width="100%" style="table-layout:fixed;">
@@ -316,90 +316,148 @@ private function distribucionPorRangos($datos)
         return $html;
     }
 
-    public function reporte_estadistico()
-    {
-        if (!$this->hasCreateAccess()) {
-            $this->loadThis();
-            return;
-        }
-
-        // CONFIGURACIÓN PDF
-        $pdf = new PDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
-        $pdf->SetCreator('HLANDEROS');
-        $pdf->SetAuthor('HLANDEROS');
-        $pdf->SetTitle('Reporte de Examen de Evaluación Docente 2025');
-        $pdf->setPrintHeader(true);
-        $pdf->setPrintFooter(true);
-        $pdf->SetMargins(20, 20, 20);
-
-        $vinos = [110, 0, 20];
-
-        // DATOS POST
-        $ies      = $this->input->post('ies');
-        $sede     = $this->input->post('sede');
-        $programa = $this->input->post('programa');
-
-        // CONSULTA ÚNICA A BD (OPTIMIZADA)
-        $datos = $this->em->get_all_resultados_for_planes_esta($ies, $sede, $programa);
-        
-        $grupos = $this->agruparPorSemestreGrupo($datos);
-
-        $pdf->AddPage();
-$pdf->Bookmark('Resumen General', 0);
-
-$rangos = $this->distribucionPorRangos($datos);
-
-$html = '<h2>Resumen General</h2>';
-$html .= $this->tablaDistribucion($rangos);
-$pdf->SetXY(20, 30);
-$pdf->writeHTML($html, true, false, true, false, '');
-
-// 👇 AQUÍ
-$this->graficaBarrasTCPDF($pdf, $rangos);
-
-        $pdf->SetFont('gothambook', '', 9);
-
-        $html = '
-        <h1>Reporte Estadístico de Evaluación Docente</h1>
-        <hr>
-        ';
-
-        foreach ($grupos as $grupo) {
-            // Salto de página por grupo
-            if ($pdf->getY() > 220) {
-                $pdf->AddPage();
-                $pdf->SetXY(22, 30);
-                $pdf->setPageMark();
-            }
-$pdf->Bookmark(
-    'Semestre '.$grupo['grado'].' Grupo '.$grupo['grupo'],
-    1
-);
-
-            $html .= $this->generarTablaGrupo($grupo);
-        }
-
-        $pdf->writeHTML($html, true, false, true, false, '');
-        $pdf->addTOCPage();
-
-$pdf->SetFont('gothamblack', '', 14);
-$pdf->MultiCell(0, 20, 'ÍNDICE', 0, 'C');
-$pdf->Ln(5);
-
-$pdf->SetFont('gothambook', '', 10);
-$pdf->addTOC(
-    2,                 // niveles
-    'gothambook',
-    '.',
-    'Índice',
-    'B',
-    [0,0,0]
-);
-
-$pdf->endTOCPage();
-
-        $pdf->Output('reporte_estadistico.pdf', 'I');
+   public function reporte_estadistico()
+{
+    if (!$this->hasCreateAccess()) {
+        $this->loadThis();
+        return;
     }
+
+    // ----------------------------------------------------
+    // CONFIGURACIÓN PDF
+    // ----------------------------------------------------
+    $pdf = new PDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
+    $pdf->SetCreator('HLANDEROS');
+    $pdf->SetAuthor('HLANDEROS');
+    $pdf->SetTitle('Reporte de Examen de Evaluación Docente 2025');
+    $pdf->setPrintHeader(true);
+    $pdf->setPrintFooter(true);
+  $pdf->SetMargins(20, 32, 20); // ⬅️ antes era 20
+$pdf->SetAutoPageBreak(true, 30);
+
+    // ----------------------------------------------------
+    // DATOS POST
+    // ----------------------------------------------------
+    $ies      = $this->input->post('ies');
+    $sede     = $this->input->post('sede');
+    $programa = $this->input->post('programa');
+
+    // ----------------------------------------------------
+    // CONSULTA BD
+    // ----------------------------------------------------
+    $datos = $this->em->get_all_resultados_for_planes_esta($ies, $sede, $programa);
+    $grupos = $this->agruparPorSemestreGrupo($datos);
+
+    // ----------------------------------------------------
+    // PORTADA / RESUMEN GENERAL
+    // ----------------------------------------------------
+    $leyendas = $datos[0];
+    $titulo = $leyendas['institucion'] . ' ' .
+        (empty($leyendas['sede']) ? '' : $leyendas['sede'] . ' - ') .
+        (empty($leyendas['programa']) ? '' : $leyendas['programa']);
+
+    $pdf->AddPage();
+    $pdf->Bookmark('RESUMEN GENERAL DE ' . $titulo, 0);
+
+    $rangos = $this->distribucionPorRangos($datos);
+
+    $html = '<h4>RESUMEN GENERAL DE ' . $titulo . '</h4>';
+    $html .= $this->tablaDistribucion($rangos);
+
+    $pdf->SetXY(20, 30);
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    // Gráfica
+    $this->graficaBarrasTCPDF($pdf, $rangos);
+
+  
+    $pdf->SetFont('gothambook', '', 12);
+    $pdf->writeHTML('
+        <h4 align="center" style="font-weight:bold;">
+            Reporte Estadístico de Evaluación Docente
+        </h4>', true, false, true, false, '');
+
+    // ----------------------------------------------------
+    // NUMERACIÓN POR SEMESTRE
+    // ----------------------------------------------------
+    $semestreActual = null;
+    $numSemestre = 0;
+    $numGrupo = 0;
+
+
+    foreach ($grupos as $grupo) {
+
+        // Detectar cambio de semestre
+        if ($semestreActual !== $grupo['grado']) {
+            $semestreActual = $grupo['grado'];
+            $numSemestre++;
+            $numGrupo = 1;
+        } else {
+            $numGrupo++;
+        }
+
+        // Numeración tipo 1.1, 1.2, 2.1 ...
+        $numeracion = $numSemestre . '.' . $numGrupo;
+
+        // ------------------------------------------------
+        // NUEVA PÁGINA POR CADA GRUPO
+        // ------------------------------------------------
+      $pdf->AddPage();
+$pdf->SetXY(20, 20);   // ⬅️ antes 35
+$pdf->setPageMark();
+
+
+        // Bookmark correcto
+        $pdf->Bookmark(
+            $numeracion . ' Semestre ' . $grupo['grado'] . ' Grupo ' . $grupo['grupo'],
+            1
+        );
+
+        // Título visible del grupo
+        $pdf->SetFont('gothamblack', '', 11);
+        $pdf->MultiCell(
+            0,
+            8,
+            $numeracion . '  SEMESTRE ' . $grupo['grado'] . '  |  GRUPO ' . $grupo['grupo'],
+            0,
+            'L'
+        );
+
+        $pdf->Ln(2);
+
+        // Tabla del grupo
+        $pdf->SetFont('gothambook', '', 11);
+        $html_grupo = $this->generarTablaGrupo($grupo);
+        $pdf->writeHTML($html_grupo, true, false, true, false, '');
+    }
+
+    // ----------------------------------------------------
+    // ÍNDICE
+    // ----------------------------------------------------
+    $pdf->addTOCPage();
+    $pdf->Ln(2);
+    $pdf->SetFont('gothamblack', '', 14);
+    $pdf->MultiCell(0, 10, 'ÍNDICE', 0, 'C');
+  
+
+    $pdf->SetFont('gothambook', '', 10);
+    $pdf->addTOC(
+        2,
+        'gothambook',
+        '.',
+        'Índice',
+        'B',
+        [0, 0, 0]
+    );
+
+    $pdf->endTOCPage();
+
+    // ----------------------------------------------------
+    // SALIDA
+    // ----------------------------------------------------
+    $pdf->Output('reporte_estadistico.pdf', 'I');
+}
+
 private function tablaDistribucion($rangos)
 {
     $html = '
