@@ -1,11 +1,22 @@
-<div class="content-wrapper">
+<style>
+  .direccion-text {
+  display: block;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+}
 
-<!-- Content Header -->
+.text-break {
+  word-break: break-all;
+}
+
+</style>
+<div class="content-wrapper">
+  <!-- Content Header -->
   <section class="content-header">
     <h1>
-      <i class="fa fa-tachometer"></i> Departamento de Formación Profesional
+      <i class="fa fa-tachometer"></i> Directorio de Instituciones de Educación Superior de Seiem
     </h1>
-    
   </section>
 
   <!-- Main Content -->
@@ -15,93 +26,52 @@
         <div class="box box-primary">
           <div class="box-header">
             <div class="row">
-            <h1>&nbsp;&nbsp;&nbsp; Resultados de Examen de Conocimientos Generales 7° Semestre 2025</h1>
-            <h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b><?=$_SESSION['name']?></b></h2>
- <div class="col-md-8">
-        <h3 style="font-family: Arial; color:#6E0014;">Calificación por Rubro</h3>
+              <?php foreach ($directorio as $dependencia): ?>
+                <div class="col-lg-4 col-md-4 col-sm-12 d-flex align-items-stretch mb-3">
+                  <div class="card w-100 bg-aqua">
+                    <div class="card-header border-bottom">
+                      <h5 class="lead mb-0"> <strong><?= htmlspecialchars($dependencia['nombre_corto']); ?></strong></h5>
+                    </div>
 
-              <div style="width: 1050px; height: 450px;">
-                  <canvas id="graficaRubros"></canvas>
-              </div>
-        </div>
-         <div class="col-md-4">
-          <table style="width: 100%; border-collapse: collapse; font-family: Arial;">
-    <thead>
-        <tr style="background: #4a4a4a; color: white;">
-            <th style="padding: 10px; border: 1px solid #ddd;">Rubro</th>
-            <th style="padding: 10px; border: 1px solid #ddd;">Calificación</th>
-        </tr>
-    </thead>
+                    <div class="card-body pt-2">
+                      <div class="row">
+                        <div class="col-12 col-sm-9">
+                          <h4 class="mb-2"><strong>Enlace:</strong><BR/> <?= htmlspecialchars($dependencia['enlace_dependencia']); ?></h4>
 
-    <tbody>
-        <?php foreach ($directorio as $item): ?>
-            <tr>
-                <td style="padding: 10px; border: 1px solid #ddd;">
-                    <?= $item['rubro']; ?>
-                </td>
-                <td style="padding: 10px; border: 1px solid #ddd; text-align:center; font-weight:bold;">
-                    <?= $item['calificacion_rubro']; ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+                          <ul class="fa-ul">
+                           <li class="mb-2">
+                              <span class="fa-li"><i class="fas fa-envelope-open"></i></span>
+                              <span class="text-break">
+                                <?= htmlspecialchars($dependencia['correo_dependencia']); ?>
+                              </span>
+                            </li>
 
-         </div>
-<script>
-    // ---- Etiquetas ----
-    const labels = [
-        <?php foreach ($directorio as $r) { echo "'" . $r['rubro'] . "',"; } ?>
-    ];
+                            <li class="mb-1">
+                              <span class="fa-li"><i class="fas fa-phone"></i></span>
+                              <?= htmlspecialchars($dependencia['telefono_dependencia']); ?>
+                            </li>
+                           <li class="mb-2">
+                              <span class="fa-li">
+                                <i class="fas fa-map-marker-alt"></i>
+                              </span>
+                              <span class="direccion-text">
+    <?= nl2br(htmlspecialchars($dependencia['direccion_depedencia'], ENT_QUOTES, 'UTF-8')); ?>
+</span>
 
-    // ---- Valores ----
-    const dataValues = [
-        <?php foreach ($directorio as $r) { echo $r['calificacion_rubro'] . ","; } ?>
-    ];
+                            </li>
 
-    // ---- Colores DIFERENTES por rubro ----
-    const colores = [
-        'rgba(110, 0, 20, 0.6)',     // vino
-        'rgba(0, 90, 150, 0.6)',     // azul
-        'rgba(0, 150, 70, 0.6)',     // verde
-        'rgba(240, 140, 0, 0.6)'     // naranja
-    ];
+                          </ul>
+                        </div>
 
-    const bordes = [
-        'rgba(110, 0, 20, 1)',
-        'rgba(0, 90, 150, 1)',
-        'rgba(0, 150, 70, 1)',
-        'rgba(240, 140, 0, 1)'
-    ];
-
-    const ctx = document.getElementById('graficaRubros').getContext('2d');
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{    
-                label: 'Puntaje (0 - 10)',
-                data: dataValues,
-                backgroundColor: colores,
-                borderColor: bordes,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 10
-                }
-            }
-        }
-    });
-</script>
-
-            
+                      
+                        <div class="col-2 col-sm-3 text-center d-flex align-items-center">
+                          <img src="<?= base_url("assets/dist/img/" . $dependencia['imagen']) ?>" alt="Logo" class="img-circle img-fluid" style="max-width: 80px;">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <?php endforeach; ?>
             </div> <!-- /.row -->
           </div> <!-- /.box-header -->
         </div> <!-- /.box -->

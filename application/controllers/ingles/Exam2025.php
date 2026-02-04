@@ -19,6 +19,7 @@ class Exam2025 extends BaseController
 
 
 
+
     public function index()
     {
         if(!$this->hasCreateAccess())
@@ -1132,6 +1133,7 @@ foreach ($resultados_crudos as $fila) {
         'grammar'    => $fila['grammar']
     ];
 }
+
 
 // ----------------------------------------------------
 // GENERACIÓN DE PDF POR GRUPO
