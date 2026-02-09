@@ -919,6 +919,10 @@ public function reporte()
         $sede,
         $programa
     );
+ set_time_limit(0); 
+
+    // 2. Aumentar el límite de memoria (por ejemplo, 1GB o -1 para ilimitado)
+    ini_set('memory_limit', '1024M');
 
     // ----------------------------------------------------
     // AGRUPACIÓN POR ALUMNO
