@@ -1,12 +1,36 @@
 <style>
+/* Hace que las columnas trabajen como flex */
+.row-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.row-flex > [class*='col-'] {
+  display: flex;
+}
+
+/* Hace que todas las tarjetas tengan misma altura */
+.card-directorio {
+  background: #7b0000; /* tu rojo institucional */
+  color: #fff;
+  width: 100%;
+  padding: 15px;
+  position: relative;
+}
+
+/* Imagen alineada a la derecha */
+.card-directorio img {
+  max-width: 80px;
+}
+
+/* Dirección sin romper diseño */
 .direccion-text {
-  display: block;
   white-space: normal;
-  overflow-wrap: break-word;
   word-wrap: break-word;
   line-height: 1.4;
 }
 </style>
+
 
 <div class="content-wrapper">
   <section class="content-header">
@@ -20,67 +44,48 @@
   <section class="content">
     <div class="container-fluid">
       <div class="row">
+<div class="row row-flex">
+<?php foreach ($directorio as $dependencia): ?>
 
-        <?php foreach ($directorio as $dependencia): ?>
-          <div class="col-lg-4 col-md-6 col-12 mb-3">
-            <div class="card card-primary h-100">
+  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+    <div class="card-directorio">
 
-              <div class="card-header">
-                <h5 class="mb-0">
-                  <strong><?= htmlspecialchars($dependencia['nombre_corto']); ?></strong>
-                </h5>
-              </div>
+      <h4><strong><?= htmlspecialchars($dependencia['nombre_corto']); ?></strong></h4>
 
-              <div class="card-body">
-                <div class="row">
+      <p><strong>Enlace:</strong><br>
+        <?= htmlspecialchars($dependencia['enlace_dependencia']); ?>
+      </p>
 
-                  <!-- Información -->
-                  <div class="col-9">
-                    <p class="mb-2">
-                      <strong>Enlace:</strong><br>
-                      <?= htmlspecialchars($dependencia['enlace_dependencia']); ?>
-                    </p>
+      <ul class="fa-ul">
+        <li>
+          <span class="fa-li"><i class="fa fa-envelope"></i></span>
+          <?= htmlspecialchars($dependencia['correo_dependencia']); ?>
+        </li>
 
-                    <ul class="fa-ul mb-0">
-                      <li class="mb-2">
-                        <span class="fa-li">
-                          <i class="fas fa-envelope"></i>
-                        </span>
-                        <?= htmlspecialchars($dependencia['correo_dependencia']); ?>
-                      </li>
+        <li>
+          <span class="fa-li"><i class="fa fa-phone"></i></span>
+          <?= htmlspecialchars($dependencia['telefono_dependencia']); ?>
+        </li>
 
-                      <li class="mb-2">
-                        <span class="fa-li">
-                          <i class="fas fa-phone"></i>
-                        </span>
-                        <?= htmlspecialchars($dependencia['telefono_dependencia']); ?>
-                      </li>
+        <li>
+          <span class="fa-li"><i class="fa fa-map-marker"></i></span>
+          <span class="direccion-text">
+            <?= nl2br(htmlspecialchars($dependencia['direccion_depedencia'], ENT_QUOTES, 'UTF-8')); ?>
+          </span>
+        </li>
+      </ul>
 
-                      <li>
-                        <span class="fa-li">
-                          <i class="fas fa-map-marker-alt"></i>
-                        </span>
-                        <span class="direccion-text">
-                          <?= nl2br(htmlspecialchars($dependencia['direccion_depedencia'], ENT_QUOTES, 'UTF-8')); ?>
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
+      <div style="position:absolute; top:15px; right:15px;">
+        <img src="<?= base_url("assets/dist/img/" . $dependencia['imagen']) ?>" 
+             class="img-circle">
+      </div>
 
-                  <!-- Imagen -->
-                  <div class="col-3 text-center d-flex align-items-center justify-content-center">
-                    <img src="<?= base_url("assets/dist/img/" . $dependencia['imagen']) ?>" 
-                         alt="Logo"
-                         class="img-fluid img-circle"
-                         style="max-width: 80px;">
-                  </div>
+    </div>
+  </div>
 
-                </div>
-              </div>
+<?php endforeach; ?>
+</div>
 
-            </div>
-          </div>
-        <?php endforeach; ?>
 
       </div>
     </div>
