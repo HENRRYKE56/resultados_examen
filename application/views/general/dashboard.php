@@ -133,10 +133,7 @@
 <?php foreach ($directorio as $dependencia): ?>
 
   <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-    <div class="card-directorio" onclick="window.open('<?= $dependencia['sitio_web']; ?>','_blank')">
-   
-
-    
+    <div class="card-directorio">
 
 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 tarjeta-directorio"
      data-nombre="<?= strtolower($dependencia['nombre_corto']); ?>">
