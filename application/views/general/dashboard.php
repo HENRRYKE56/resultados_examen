@@ -55,6 +55,9 @@
 .card-info p {
   margin-bottom: 8px;
 }
+.card-directorio {
+  cursor: pointer;
+}
 
 .card-info strong {
   font-weight: 600;
@@ -119,14 +122,25 @@
   <section class="content">
     <div class="container-fluid">
       <div class="row">
+        <div class="row" style="margin-bottom:20px;">
+  <div class="col-md-6">
+    <input type="text" id="buscadorDirectorio" class="form-control"
+           placeholder="Buscar institución...">
+  </div>
+</div>
+
 <div class="row row-flex">
 <?php foreach ($directorio as $dependencia): ?>
 
   <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
-    <div class="card-directorio">
+    <div class="card-directorio" onclick="window.open('<?= $dependencia['sitio_web']; ?>','_blank')">
+   
 
-      <div class="card-header-directorio">
-        <?= htmlspecialchars($dependencia['nombre_corto']); ?>
+    
+
+<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 tarjeta-directorio"
+     data-nombre="<?= strtolower($dependencia['nombre_corto']); ?>">
+
       </div>
 
       <div class="card-body-directorio">
@@ -168,6 +182,39 @@
 
 <?php endforeach; ?>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  const buscador = document.getElementById("buscadorDirectorio");
+  const tarjetas = document.querySelectorAll(".tarjeta-directorio");
+  const contenedor = document.querySelector(".row-flex");
+
+  /* ORDENAR ALFABÉTICAMENTE */
+  const tarjetasArray = Array.from(tarjetas);
+
+  tarjetasArray.sort((a, b) => {
+    return a.dataset.nombre.localeCompare(b.dataset.nombre);
+  });
+
+  tarjetasArray.forEach(t => contenedor.appendChild(t));
+
+  /* BUSCADOR EN TIEMPO REAL */
+  buscador.addEventListener("keyup", function() {
+    const texto = this.value.toLowerCase();
+
+    tarjetasArray.forEach(tarjeta => {
+      const nombre = tarjeta.dataset.nombre;
+      if (nombre.includes(texto)) {
+        tarjeta.style.display = "flex";
+      } else {
+        tarjeta.style.display = "none";
+      }
+    });
+  });
+
+});
+</script>
+
 
 
 
