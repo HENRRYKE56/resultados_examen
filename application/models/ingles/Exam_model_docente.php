@@ -142,15 +142,15 @@ $this->db->select("
     a.asignatura AS asignatura,
     a.nombre_docente AS nombre_docente,
 
-    ROUND((p1+p2+p3+p4+p5+p6)/30*17.5,2) AS planeacion,
-    ROUND((p7+p8+p9+p10+p11+p12+p13)/35*17.5,2) AS saberes,
-    ROUND((p14+p15+p16+p17+p18)/25*17.5,2) AS habilidades,
-    ROUND((p19+p20+p21+p22+p23)/25*17.5,2) AS recursos,
-    ROUND((p24+p25+p26+p27+p28+p29)/30*17.5,2) AS etica,
-    ROUND((p30+p31+p32+p33+p34+p35)/30*17.5,2) AS evaluacion,
+    ROUND((p1+p2+p3+p4+p5+p6)/30*10.0,2) AS planeacion,
+    ROUND((p7+p8+p9+p10+p11+p12+p13)/35*10.0,2) AS saberes,
+    ROUND((p14+p15+p16+p17+p18)/25*10.0,2) AS habilidades,
+    ROUND((p19+p20+p21+p22+p23)/25*10.0,2) AS recursos,
+    ROUND((p24+p25+p26+p27+p28+p29)/30*10.0,2) AS etica,
+    ROUND((p30+p31+p32+p33+p34+p35)/30*10.0,2) AS evaluacion,
 
     a.ponderacion AS total,
-    ROUND(a.ponderacion/175*17.5,2) AS promedio
+    ROUND(a.ponderacion/175*10.0,2) AS promedio
 ", FALSE);
 
 
@@ -205,15 +205,15 @@ public function get_all_resultados_for_sedes($ies = null, $sede = null)
     a.asignatura AS asignatura,
     a.nombre_docente AS nombre_docente,
 
-    ROUND((p1+p2+p3+p4+p5+p6)/30*17.5,2) AS planeacion,
-    ROUND((p7+p8+p9+p10+p11+p12+p13)/35*17.5,2) AS saberes,
-    ROUND((p14+p15+p16+p17+p18)/25*17.5,2) AS habilidades,
-    ROUND((p19+p20+p21+p22+p23)/25*17.5,2) AS recursos,
-    ROUND((p24+p25+p26+p27+p28+p29)/30*17.5,2) AS etica,
-    ROUND((p30+p31+p32+p33+p34+p35)/30*17.5,2) AS evaluacion,
+    ROUND((p1+p2+p3+p4+p5+p6)/30*10.0,2) AS planeacion,
+    ROUND((p7+p8+p9+p10+p11+p12+p13)/35*10.0,2) AS saberes,
+    ROUND((p14+p15+p16+p17+p18)/25*10.0,2) AS habilidades,
+    ROUND((p19+p20+p21+p22+p23)/25*10.0,2) AS recursos,
+    ROUND((p24+p25+p26+p27+p28+p29)/30*10.0,2) AS etica,
+    ROUND((p30+p31+p32+p33+p34+p35)/30*10.0,2) AS evaluacion,
 
     a.ponderacion AS total,
-    ROUND(a.ponderacion/175*17.5,2) AS promedio
+    ROUND(a.ponderacion/175*10.0,2) AS promedio
 ", FALSE);
 
 
@@ -258,15 +258,15 @@ public function get_all_resultados_for_ies()
     b.ies AS institucion,
    
 
-    ROUND(avg(p1+p2+p3+p4+p5+p6)/30*17.5,2) AS planeacion,
-    ROUND(avg(p7+p8+p9+p10+p11+p12+p13)/35*17.5,2) AS saberes,
-    ROUND(avg(p14+p15+p16+p17+p18)/25*17.5,2) AS habilidades,
-    ROUND(avg(p19+p20+p21+p22+p23)/25*17.5,2) AS recursos,
-    ROUND(avg(p24+p25+p26+p27+p28+p29)/30*17.5,2) AS etica,
-    ROUND(avg(p30+p31+p32+p33+p34+p35)/30*17.5,2) AS evaluacion,
+    ROUND(avg(p1+p2+p3+p4+p5+p6)/30*10.0,2) AS planeacion,
+    ROUND(avg(p7+p8+p9+p10+p11+p12+p13)/35*10.0,2) AS saberes,
+    ROUND(avg(p14+p15+p16+p17+p18)/25*10.0,2) AS habilidades,
+    ROUND(avg(p19+p20+p21+p22+p23)/25*10.0,2) AS recursos,
+    ROUND(avg(p24+p25+p26+p27+p28+p29)/30*10.0,2) AS etica,
+    ROUND(avg(p30+p31+p32+p33+p34+p35)/30*10.0,2) AS evaluacion,
 
     a.ponderacion AS total,
-    ROUND(avg(a.ponderacion)/175*17.5,2) AS promedio
+    ROUND(avg(a.ponderacion)/175*10.0,2) AS promedio
 ", FALSE);
 
 
@@ -413,15 +413,15 @@ public function get_all_resultados_for_planes($ies = null, $sede = null)
     a.asignatura AS asignatura,
     a.nombre_docente AS nombre_docente,
 
-    ROUND(avg(p1+p2+p3+p4+p5+p6)/30*17.5,2) AS planeacion,
-    ROUND(avg(p7+p8+p9+p10+p11+p12+p13)/35*17.5,2) AS saberes,
-    ROUND(avg(p14+p15+p16+p17+p18)/25*17.5,2) AS habilidades,
-    ROUND(avg(p19+p20+p21+p22+p23)/25*17.5,2) AS recursos,
-    ROUND(avg(p24+p25+p26+p27+p28+p29)/30*17.5,2) AS etica,
-    ROUND(avg(p30+p31+p32+p33+p34+p35)/30*17.5,2) AS evaluacion,
+    ROUND(avg(p1+p2+p3+p4+p5+p6)/30*10.0,2) AS planeacion,
+    ROUND(avg(p7+p8+p9+p10+p11+p12+p13)/35*10.0,2) AS saberes,
+    ROUND(avg(p14+p15+p16+p17+p18)/25*10.0,2) AS habilidades,
+    ROUND(avg(p19+p20+p21+p22+p23)/25*10.0,2) AS recursos,
+    ROUND(avg(p24+p25+p26+p27+p28+p29)/30*10.0,2) AS etica,
+    ROUND(avg(p30+p31+p32+p33+p34+p35)/30*10.0,2) AS evaluacion,
 
     a.ponderacion AS total,
-    ROUND(avg(a.ponderacion)/175*17.5,2) AS promedio
+    ROUND(avg(a.ponderacion)/175*10.0,2) AS promedio
 ", FALSE);
 
 
@@ -477,15 +477,15 @@ $this->db->select("
     a.asignatura AS asignatura,
     a.nombre_docente AS nombre_docente,
 
-    ROUND(avg(p1+p2+p3+p4+p5+p6)/30*17.5,2) AS planeacion,
-    ROUND(avg(p7+p8+p9+p10+p11+p12+p13)/35*17.5,2) AS saberes,
-    ROUND(avg(p14+p15+p16+p17+p18)/25*17.5,2) AS habilidades,
-    ROUND(avg(p19+p20+p21+p22+p23)/25*17.5,2) AS recursos,
-    ROUND(avg(p24+p25+p26+p27+p28+p29)/30*17.5,2) AS etica,
-    ROUND(avg(p30+p31+p32+p33+p34+p35)/30*17.5,2) AS evaluacion,
+    ROUND(avg(p1+p2+p3+p4+p5+p6)/30*10.0,2) AS planeacion,
+    ROUND(avg(p7+p8+p9+p10+p11+p12+p13)/35*10.0,2) AS saberes,
+    ROUND(avg(p14+p15+p16+p17+p18)/25*10.0,2) AS habilidades,
+    ROUND(avg(p19+p20+p21+p22+p23)/25*10.0,2) AS recursos,
+    ROUND(avg(p24+p25+p26+p27+p28+p29)/30*10.0,2) AS etica,
+    ROUND(avg(p30+p31+p32+p33+p34+p35)/30*10.0,2) AS evaluacion,
 
     a.ponderacion AS total,
-    ROUND(avg(a.ponderacion)/175*17.5,2) AS promedio
+    ROUND(avg(a.ponderacion)/175*10.0,2) AS promedio
 ", FALSE);
 
 
