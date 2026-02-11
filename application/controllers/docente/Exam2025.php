@@ -274,7 +274,7 @@ private function distribucionPorRangos($datos)
             <strong>Sede:</strong> ' . $grupo['sede'] . '<br>
             <strong>Total de alumnos que evaluaron:</strong> ' . $grupo['total_alumnos'] . '<br>
             <strong>Alumnos que les gusto la asignatura:</strong> ' . $grupo['aprobados'] . ' |
-            <strong>Alumnos que <b>NO</b> les gusto la asignatura:</strong> ' . $grupo['reprobados'] . '
+            <strong>Alumnos que <b>NO</b> les gusto alguna asignatura:</strong> ' . $grupo['reprobados'] . '
         </p>
 
      <table border="1" cellpadding="4" cellspacing="0" width="100%" style="table-layout:fixed;">
