@@ -14,7 +14,19 @@ class User_model extends CI_Model
      * @param string $searchText : This is optional search text
      * @return number $count : This is row count
      */
-    function directorio()
+        function directorio()
+    {
+        $this->db->select('*');
+        $this->db->from('catalogo_dependencias as a'); 
+        $this->db->where('a.estado', 0);
+      //  $this->db->where('a.cve_dependencia <', 16);
+        $this->db->order_by('a.orden', 'ASC');
+        // $this->db->where('BaseTbl.roleId !=', 1);
+        $query = $this->db->get();
+        
+        return $query->result_array();
+    }
+    function directorio1()
     {
         $nombre = strtoupper($_SESSION['name']);
 
