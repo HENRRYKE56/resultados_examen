@@ -128,16 +128,16 @@
            placeholder="Buscar institución...">
   </div>
 </div>
-
 <div class="row row-flex">
 <?php foreach ($directorio as $dependencia): ?>
 
-  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+  <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 tarjeta-directorio"
+       data-nombre="<?= strtolower($dependencia['nombre_corto']); ?>">
+
     <div class="card-directorio">
 
-<div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 tarjeta-directorio"
-     data-nombre="<?= strtolower($dependencia['nombre_corto']); ?>">
-
+      <div class="card-header-directorio">
+        <?= htmlspecialchars($dependencia['nombre_corto']); ?>
       </div>
 
       <div class="card-body-directorio">
@@ -175,6 +175,7 @@
       </div>
 
     </div>
+
   </div>
 
 <?php endforeach; ?>
@@ -184,23 +185,13 @@ document.addEventListener("DOMContentLoaded", function() {
 
   const buscador = document.getElementById("buscadorDirectorio");
   const tarjetas = document.querySelectorAll(".tarjeta-directorio");
-  const contenedor = document.querySelector(".row-flex");
 
-  /* ORDENAR ALFABÉTICAMENTE */
-  const tarjetasArray = Array.from(tarjetas);
-
-  tarjetasArray.sort((a, b) => {
-    return a.dataset.nombre.localeCompare(b.dataset.nombre);
-  });
-
-  tarjetasArray.forEach(t => contenedor.appendChild(t));
-
-  /* BUSCADOR EN TIEMPO REAL */
   buscador.addEventListener("keyup", function() {
     const texto = this.value.toLowerCase();
 
-    tarjetasArray.forEach(tarjeta => {
+    tarjetas.forEach(function(tarjeta) {
       const nombre = tarjeta.dataset.nombre;
+
       if (nombre.includes(texto)) {
         tarjeta.style.display = "flex";
       } else {
@@ -211,6 +202,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 });
 </script>
+
 
 
 
