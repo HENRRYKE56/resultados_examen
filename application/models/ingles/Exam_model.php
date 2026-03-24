@@ -102,6 +102,9 @@ switch ($nombre) {
     case 14://ecatepec
         $resultado =12;
         break;
+         case 15://nromero
+        $resultado =13;
+        break;
 
     default:
         $resultado = 12;

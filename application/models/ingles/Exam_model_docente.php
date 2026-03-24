@@ -54,7 +54,7 @@ switch ($nombre) {
    public function get_sedes_by_ies($cve_ies)
 {
   $nombre = strtoupper($_SESSION['userId']);
-  
+
 switch ($nombre) {
 
     case 2://academica
@@ -101,6 +101,9 @@ switch ($nombre) {
         break;
     case 14://ecatepec
         $resultado =12;
+        break;
+         case 15://nromero
+        $resultado =13;
         break;
 
     default:

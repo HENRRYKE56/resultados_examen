@@ -40,7 +40,7 @@
 </div>
 <script>$(function () {
     $('.select2').select2({
-        multiple: true; // Habilita la selección múltiple
+        multiple: true 
     })
     
 });
