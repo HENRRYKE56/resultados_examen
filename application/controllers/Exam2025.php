@@ -1006,7 +1006,6 @@ $pdf->SetLineWidth(0.2);
     $pdf->Ln($altoBarra + 5);
 }
 
-
 }
 
 ?>

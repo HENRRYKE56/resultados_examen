@@ -103,9 +103,12 @@ $route['asignarCorrespondencia/(:num)'] = "Exam2025/asignar/$1";
 $route['resultados'] = "Exam2025/reporte";
 
 
+
+$route['formatoDocente'] = "docente/Exam2025/eval_docente";
 $route['exam2025/get-sedes'] = 'Exam2025/get_sedes';
 $route['exam2025/get-programas'] = 'Exam2025/get_programas';
 $route['reporte'] = "Exam2025/reporte";
+$route['formato'] = "docente/Exam2025/formato_docente";
 $route['planes'] = "Exam2025/reporte_planes";
 $route['rsede'] = "Exam2025/reporte_sedes";
 $route['ries'] = "Exam2025/reporte_ies";

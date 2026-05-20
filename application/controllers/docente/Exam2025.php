@@ -1271,5 +1271,224 @@ private function tablaDistribucion($rangos)
             $this->loadViews("docente/planes", $this->global, $this->data, NULL);
         }
     }
+public function eval_docente(){
+    
+        if(!$this->hasCreateAccess())
+        { 
+            $this->loadThis();
+        }
+        else
+        {
+            $ies = $this->em->ies();
+            $options1 = array();
+            foreach ($ies as $ie) {   
+                $options1[$ie['cve_ies']] = $ie['ies'];
+            }
+            $ies = array('' => 'Seleccione') + $options1;
+
+            $this->data['ies'] = array(
+                'name'  => 'ies',
+                'id'    => 'ies',
+                'class' => 'form-control',
+                'options' => $ies,
+                'value' => $this->form_validation->set_value('ies'),
+            );
+
+            $this->data['sede'] = array(
+                'name'  => 'sede',
+                'id'    => 'sede',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione'),
+            );
+
+            $this->data['programa'] = array(
+                'name'  => 'programa',
+                'id'    => 'programa',
+                'class' => 'form-control',
+                'options' => array('' => 'Seleccione'),
+            );
+
+            $this->global['pageTitle'] = 'SEIEM : Reporte de Resultados Examen 2025';
+
+            $this->loadViews("Exam2025/panel_formato", $this->global, $this->data, NULL);
+        }
+}
+    
+    public function formato_docente(){
+    // $data['registros'] = $this->Reporte_model->getDatos();
+
+        
+    if (!$this->hasCreateAccess()) {
+        $this->loadThis();
+        return;
+    }
+
+  $pdf = new PDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
+    $pdf->SetCreator('HLANDEROS');
+    $pdf->SetAuthor('Hlanderos');
+    $pdf->SetTitle('Reporte de Examen de Conocimientos 2025');
+    $pdf->setPrintHeader(true);
+    $pdf->setPrintFooter(true);
+    $pdf->SetMargins(20, 20, 20);
+
+    $vino = array(110, 0, 20);
+
+
+
+        $ies      = $this->input->post('ies');
+        $sede     = $this->input->post('sede');
+      $nombre_archivo ="";
+        $resultados_crudos = $this->em->formato_docente($ies, $sede);
+foreach ($resultados_crudos as $row) {
+
+$pdf->AddPage();
+
+// ----------------------------
+// ENCABEZADO
+// ----------------------------
+$pdf->SetXY(0, 30);
+
+
+
+
+$pdf->SetFont('gothamblack', '', 9);
+$pdf->Cell(130, 5, "Asunto:", 0, 0, 'R');
+$pdf->SetFont('gothambook', '', 9);
+$pdf->Cell(0, 5, "Evaluación del Desempeño Docente", 0, 1, 'R');
+
+$pdf->SetFont('gothamblack', '', 9);
+$pdf->Cell(110, 3, "Periodo evaluado:", 0, 0, 'R');
+$pdf->SetFont('gothambook', '', 9);
+$pdf->Cell(0, 3, "Semestre Septiembre – Enero 2026", 0, 1, 'R');
+$pdf->SetFont('gothamblack', '', 9);
+$pdf->Cell(110, 3, "Lugar y fecha:", 0, 0, 'R');
+$pdf->SetFont('gothambook', '', 9);
+$pdf->Cell(0, 5, "Toluca, México, 15 de Marzo de 2026.", 0, 1, 'R');
+
+// ----------------------------
+// DATOS GENERALES
+// ----------------------------
+
+// ----------------------------
+// MENSAJE INSTITUCIONAL
+// ----------------------------
+$pdf->SetXY(22, 50);
+$pdf->SetFont('gothamblack', '', 10);
+$pdf->Cell(20, 5,$row['nombre_docente'], 0, 0, 'L');
+$pdf->SetXY(22, 55);
+$pdf->Cell(0, 5,'Estimado(a) docente universitario(a)', 0, 1, 'L');
+
+
+
+$escala10 = $row['escala_10'];
+$escala5  = $row['escala_5'];
+$escala35 = $row['escala_35'];
+
+if ($escala5 >= 4.5) {
+    $nivel = 'EXCELENTE';
+} elseif ($escala5 >= 4.0) {
+    $nivel = 'MUY BIEN';
+} elseif ($escala5 >= 3.0) {
+    $nivel = 'BIEN';
+} elseif ($escala5 >= 2.0) {
+    $nivel = 'REGULAR';
+} else {
+    $nivel = 'INSUFICIENTE';
+}
+
+
+$texto = '
+<p>El Departamento de Formación Profesional hace de su conocimiento los resultados obtenidos en la Evaluación al Docente correspondiente al periodo <b>Febrero – Julio 2026</b>, con la finalidad de fortalecer los procesos de mejora continua, calidad académica y retroalimentación de la práctica educativa.</p>
+
+<p>La evaluación fue aplicada al estudiantado y consideró las siguientes dimensiones:</p>
+
+<ul>
+<li>Planeación didáctica</li>
+<li>Conocimiento y dominio de la asignatura</li>
+<li>Habilidades pedagógicas</li>
+<li>Uso de recursos materiales</li>
+<li>Actitud ética y valores</li>
+<li>Evaluación de los aprendizajes</li>
+</ul>
+
+<p>Cada reactivo fue valorado en una escala de 1 a 5, donde:</p>
+
+<ul>
+<li>5 = Excelente</li>
+<li>4 = Muy bien</li>
+<li>3 = Bien</li>
+<li>2 = Regular</li>
+<li>1 = Insuficiente</li>
+</ul>
+';
+
+$pdf->SetXY(22, 65);
+$pdf->SetFont('gothambook', '', 9);
+
+
+
+$pdf->writeHTML($texto, true, false, true, false, 'J');
+// ----------------------------
+// RESULTADOS
+// ----------------------------
+$pdf->Ln(4);
+
+$pdf->SetFont('gothamblack', 'B', 11);
+$pdf->SetFillColor(110, 0, 20);
+$pdf->SetTextColor(255,255,255);
+$pdf->Cell(80, 8, 'Resultados Obtenidos', 0, 1, 'C', 1);
+
+$pdf->SetFont('gothambook', '', 10);
+$pdf->SetTextColor(0,0,0);
+$pdf->SetXY(20, 163);
+$texto = '
+<ul>
+<li><b>Escala de 5:</b> <span style="color:#6E0014;"><b>'.number_format($escala5,1).'</b></span></li>
+<li><b>Escala de 10:</b> <span style="color:#6E0014;"><b>'.number_format($escala10,1).'</b></span></li>
+<li><b>Escala de 35:</b> <span style="color:#6E0014;"><b>'.number_format($escala35,1).'</b></span></li>
+<li><b>Nivel obtenido:</b> <span style="color:#6E0014;"><b>'.$nivel.'</b></span></li>
+</ul>
+';
+$pdf->SetFont('gothambook', 'B', 9);
+$pdf->writeHTML($texto, true, false, true, false, 'L');
+
+
+
+// ----------------------------
+// INTERPRETACIÓN
+// ----------------------------
+$pdf->Ln(7);
+$interpretacion = '
+<p>Los resultados obtenidos en la evaluación docente reflejan un desempeño profesional favorable, destacando fortalezas en el dominio disciplinar, la práctica pedagógica y el compromiso con la formación académica de las y los estudiantes.</p>
+
+<p>Asimismo, se recomienda continuar fortaleciendo las áreas de oportunidad identificadas, en beneficio de la calidad educativa y del proceso de enseñanza-aprendizaje.</p>
+
+<p>La presente evaluación tiene carácter formativo y constituye un insumo institucional para el fortalecimiento de la práctica docente y la mejora continua de los servicios educativos.</p>
+
+Agradecemos su compromiso, dedicación y contribución al desarrollo académico de nuestra comunidad universitaria.<br><br>
+';
+$pdf->SetFont('gothambook', '', 9);
+
+$pdf->writeHTML($interpretacion, true, false, true, false, 'J');
+
+// ----------------------------
+// FIRMA
+// ----------------------------
+$pdf->Ln(4);
+
+$pdf->SetFont('gothamblack', '', 10);
+$pdf->Cell(0, 5, 'ATENTAMENTE', 0, 1, 'L');
+
+$pdf->Ln(12);
+
+$pdf->Cell(0, 3, 'DRA. ERIKA GONZÁLEZ DE SALCEDA RAMÍREZ', 0, 1, 'L');
+$pdf->Cell(0, 3, 'ENCARGADA DEL DESPACHO DEL DEPARTAMENTO ', 0, 1, 'L');
+$pdf->Cell(0, 3, 'DE FORMACIÓN PROFESIONAL', 0, 1, 'L');
+$nombre_archivo = str_replace(' ', '_', $row['institucion'].'_'.$row['sede']);
+}
+    $pdf->Output($nombre_archivo.'.pdf', 'I');
+
+}
+
 }
 ?>

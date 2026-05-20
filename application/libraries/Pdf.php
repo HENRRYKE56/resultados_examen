@@ -18,9 +18,17 @@ class Pdf extends TCPDF {
 public function Header() {
 
 
-
+          // Establecer la imagen de fondo
+     $this->Image(base_url('assets/images/cabeza.png'), 4, 0, 180, 25);
     // 🔹 Si quieres imagen, actívala
-     $this->Image(base_url('assets/images/cabeza.png'), 14, 5, 200, 25);
+         $this->SetXY(10,24);
+             // Ajustar la posición Y para el texto 
+             $this->SetFont('gothamblack', '', 8); 
+             // Establecer la fuente 
+              // Añadir el texto centrado
+             $this->writeHTMLCell(180, 10, '', '',"“2026, Año del Humanismo Mexicano en el Estado de México”", 0, 1, 0, true, 'C', true); 
+
+   
 }
 
     

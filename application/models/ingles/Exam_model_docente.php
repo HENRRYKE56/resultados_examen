@@ -532,5 +532,55 @@ $query = $this->db->get();
     return $query->result_array();
 }
 
+public function formato_docente($ies, $sede){
 
+
+   $this->db->select("
+    b.ies AS institucion,
+    c.sede AS sede,
+    d.programa,
+    a.nombre_docente,
+
+ROUND(AVG(a.ponderacion) / 175 * 10, 2) AS escala_10,
+ROUND(AVG(a.ponderacion) / 175 * 5, 2) AS escala_5,
+ROUND(AVG(a.ponderacion) / 175 * 35, 2) AS escala_35,
+
+    ROUND(AVG((p1+p2+p3+p4+p5+p6)/30*10),2) AS planeacion,
+    ROUND(AVG((p7+p8+p9+p10+p11+p12+p13)/35*10),2) AS saberes,
+    ROUND(AVG((p14+p15+p16+p17+p18)/25*10),2) AS habilidades,
+    ROUND(AVG((p19+p20+p21+p22+p23)/25*10),2) AS recursos,
+    ROUND(AVG((p24+p25+p26+p27+p28+p29)/30*10),2) AS etica_y_valores,
+    ROUND(AVG((p30+p31+p32+p33+p34+p35)/30*10),2) AS evaluacion
+", FALSE);
+
+$this->db->from('evaluacion_docente_diciembre_2025 a');
+
+$this->db->join('cat_ies b', 'a.cve_ies = b.cve_ies', 'left');
+$this->db->join('catalogo_sede c', 'a.cve_sede = c.cve_sede', 'left');
+$this->db->join('cat_programas d', 'a.cve_programa = d.cve_programa', 'left');
+
+// FILTROS
+if (!empty($ies)) {
+    $this->db->where('a.cve_ies', $ies);
+}
+
+if (!empty($sede)) {
+    $this->db->where('a.cve_sede', $sede);
+}
+
+// AGRUPACIÓN
+$this->db->group_by([
+    'a.cve_sede',
+    'a.nombre_docente'
+]);
+
+$query = $this->db->get();
+
+$resultados = $query->result_array();
+
+
+
+
+         return $resultados;
+}
 }
