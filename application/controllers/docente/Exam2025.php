@@ -1361,7 +1361,7 @@ $pdf->SetXY(0, 30);
 $folio = $row['cve_evaluacion'];
 
 // 🔗 URL que irá en el QR
-$url = base_url("consulta/".$folio);
+$url = "https://seiemdfp.com/validador/".$folio;
 
 // 📁 Ruta archivo
 $filename = 'qr_'.$folio.'.png';
