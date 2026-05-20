@@ -1370,7 +1370,7 @@ $ruta = FCPATH . 'assets/images/' . $filename;
 // ✅ Generar QR
 QRcode::png($url, $ruta, QR_ECLEVEL_L, 4);
       
-$pdf->Image($filename, 40, 155, 30, 30, '', '', '', false, 300, '', false, false, 0);
+
 
 $pdf->SetFont('gothamblack', '', 9);
 $pdf->Cell(130, 5, "Asunto:", 0, 0, 'R');
@@ -1496,7 +1496,7 @@ $pdf->writeHTML($interpretacion, true, false, true, false, 'J');
 // FIRMA
 // ----------------------------
 $pdf->Ln(4);
-
+$pdf->Image($filename, 40, 55, 30, 30, '', '', '', false, 300, '', false, false, 0);
 $pdf->SetFont('gothamblack', '', 10);
 $pdf->Cell(0, 5, 'ATENTAMENTE', 0, 1, 'L');
 
