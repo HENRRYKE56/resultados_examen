@@ -112,6 +112,7 @@ $route['formato'] = "docente/Exam2025/formato_docente";
 $route['planes'] = "Exam2025/reporte_planes";
 $route['rsede'] = "Exam2025/reporte_sedes";
 $route['ries'] = "Exam2025/reporte_ies";
+$route['consulta/(:any)'] = "docente/Exam2025/valida/$1";
 
 ////////////////////////////rportes examenes ingles 2025
 $route['reporte_ingles'] = "ingles/Exam2025/reporte";

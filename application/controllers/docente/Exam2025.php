@@ -1313,7 +1313,9 @@ public function eval_docente(){
             $this->loadViews("Exam2025/panel_formato", $this->global, $this->data, NULL);
         }
 }
-    
+    public function valida(){
+        die("hola");
+    }
     public function formato_docente(){
     // $data['registros'] = $this->Reporte_model->getDatos();
 
@@ -1322,6 +1324,25 @@ public function eval_docente(){
         $this->loadThis();
         return;
     }
+
+require_once('qrcode/qrlib.php');
+
+$folio = 'A12345';
+
+// 🔗 URL que irá en el QR
+$url = base_url("consulta/".$folio);
+
+// 📁 Ruta archivo
+$filename = 'qr_'.$folio.'.png';
+$ruta = FCPATH . 'assets/images/' . $filename;
+
+// ✅ Generar QR
+QRcode::png($url, $ruta, QR_ECLEVEL_L, 4);
+      
+$pdf->Image($filename, 40, 155, 30, 30, '', '', '', false, 300, '', false, false, 0);
+
+// ✅ Mostrar
+//echo '<img src="'.base_url('assets/images/'.$filename).'" />';
 
   $pdf = new PDF('P', 'mm', 'LETTER', true, 'UTF-8', false);
     $pdf->SetCreator('HLANDEROS');
