@@ -38,13 +38,7 @@
                                         <?php echo  form_dropdown($sede) ?>
                                       </div>
                                 </div>
-                              <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label for="description">Programa </label>
-                                        <?php echo  form_dropdown($programa) ?>
-                                      </div>
-                                </div>
-                                
+                        
                                
                         
                            </div><!-- /.box-body -->
