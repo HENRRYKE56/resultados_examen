@@ -1327,19 +1327,7 @@ public function eval_docente(){
 
 require_once('qrcode/qrlib.php');
 
-$folio = 'A12345';
 
-// 🔗 URL que irá en el QR
-$url = base_url("consulta/".$folio);
-
-// 📁 Ruta archivo
-$filename = 'qr_'.$folio.'.png';
-$ruta = FCPATH . 'assets/images/' . $filename;
-
-// ✅ Generar QR
-QRcode::png($url, $ruta, QR_ECLEVEL_L, 4);
-      
-$pdf->Image($filename, 40, 155, 30, 30, '', '', '', false, 300, '', false, false, 0);
 
 // ✅ Mostrar
 //echo '<img src="'.base_url('assets/images/'.$filename).'" />';
@@ -1370,7 +1358,19 @@ $pdf->AddPage();
 $pdf->SetXY(0, 30);
 
 
+$folio = $row['cve_evaluacion'];
 
+// 🔗 URL que irá en el QR
+$url = base_url("consulta/".$folio);
+
+// 📁 Ruta archivo
+$filename = 'qr_'.$folio.'.png';
+$ruta = FCPATH . 'assets/images/' . $filename;
+
+// ✅ Generar QR
+QRcode::png($url, $ruta, QR_ECLEVEL_L, 4);
+      
+$pdf->Image($filename, 40, 155, 30, 30, '', '', '', false, 300, '', false, false, 0);
 
 $pdf->SetFont('gothamblack', '', 9);
 $pdf->Cell(130, 5, "Asunto:", 0, 0, 'R');

@@ -535,7 +535,7 @@ $query = $this->db->get();
 public function formato_docente($ies, $sede){
 
 
-   $this->db->select("
+   $this->db->select("cve_evaluacion,
     b.ies AS institucion,
     c.sede AS sede,
     d.programa,
