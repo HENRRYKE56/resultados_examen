@@ -1400,7 +1400,7 @@ if ($escala5 >= 4.5) {
 $texto = '
 <p>El Departamento de Formación Profesional hace de su conocimiento los resultados obtenidos en la Evaluación al Docente correspondiente al periodo <b>Febrero – Julio 2026</b>, con la finalidad de fortalecer los procesos de mejora continua, calidad académica y retroalimentación de la práctica educativa.</p>
 
-<p>La evaluación fue aplicada al estudiantado y consideró las siguientes dimensiones:</p>
+<p>La evaluación fue aplicada al estudiantado y se consideró las siguientes dimensiones:</p>
 
 <ul>
 <li>Planeación didáctica</li>
@@ -1461,7 +1461,7 @@ $pdf->Ln(7);
 $interpretacion = '
 <p>Los resultados obtenidos en la evaluación docente reflejan un desempeño profesional favorable, destacando fortalezas en el dominio disciplinar, la práctica pedagógica y el compromiso con la formación académica de las y los estudiantes.</p>
 
-<p>Asimismo, se recomienda continuar fortaleciendo las áreas de oportunidad identificadas, en beneficio de la calidad educativa y del proceso de enseñanza-aprendizaje.</p>
+<p>Asimismo, se recomienda continuar profesionalizando, en beneficio de la excelencia académica y del proceso de enseñanza-aprendizaje.</p>
 
 <p>La presente evaluación tiene carácter formativo y constituye un insumo institucional para el fortalecimiento de la práctica docente y la mejora continua de los servicios educativos.</p>
 
