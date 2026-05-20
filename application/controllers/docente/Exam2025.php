@@ -1496,7 +1496,7 @@ $pdf->writeHTML($interpretacion, true, false, true, false, 'J');
 // FIRMA
 // ----------------------------
 $pdf->Ln(4);
-$pdf->Image($ruta, 140, 220, 30, 30, 'PNG');
+$pdf->Image($ruta, 100, 235, 30, 30, 'PNG');
 
 
 $nombre_archivo = str_replace(' ', '_', $row['institucion'].'_'.$row['sede']);
