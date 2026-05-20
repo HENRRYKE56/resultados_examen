@@ -1496,15 +1496,9 @@ $pdf->writeHTML($interpretacion, true, false, true, false, 'J');
 // FIRMA
 // ----------------------------
 $pdf->Ln(4);
-$pdf->Image($ruta, 140, 200, 30, 30, 'PNG');
-$pdf->SetFont('gothamblack', '', 10);
-$pdf->Cell(0, 5, 'ATENTAMENTE', 0, 1, 'L');
+$pdf->Image($ruta, 140, 220, 30, 30, 'PNG');
 
-$pdf->Ln(12);
 
-$pdf->Cell(0, 3, 'DRA. ERIKA GONZÁLEZ DE SALCEDA RAMÍREZ', 0, 1, 'L');
-$pdf->Cell(0, 3, 'ENCARGADA DEL DESPACHO DEL DEPARTAMENTO ', 0, 1, 'L');
-$pdf->Cell(0, 3, 'DE FORMACIÓN PROFESIONAL', 0, 1, 'L');
 $nombre_archivo = str_replace(' ', '_', $row['institucion'].'_'.$row['sede']);
 }
     $pdf->Output($nombre_archivo.'.pdf', 'I');
