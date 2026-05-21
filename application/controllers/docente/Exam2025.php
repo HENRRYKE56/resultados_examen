@@ -1419,7 +1419,7 @@ if ($escala5 >= 4.5) {
 
 
 $texto = '
-<p>El Departamento de Formación Profesional hace de su conocimiento los resultados obtenidos en la Evaluación al Docente correspondiente al periodo <b>Febrero – Julio 2026</b>, con la finalidad de fortalecer los procesos de mejora continua, calidad académica y retroalimentación de la práctica educativa.</p>
+<p>El Departamento de Formación Profesional hace de su conocimiento los resultados obtenidos en la Evaluación al Docente, con la finalidad de fortalecer los procesos de mejora continua, calidad académica y retroalimentación de la práctica educativa.</p>
 
 <p>La evaluación fue aplicada al estudiantado y se consideró las siguientes dimensiones:</p>
 
