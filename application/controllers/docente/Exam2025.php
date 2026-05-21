@@ -1384,7 +1384,7 @@ $pdf->Cell(0, 3, "Semestre Septiembre – Enero 2026", 0, 1, 'R');
 $pdf->SetFont('gothamblack', '', 9);
 $pdf->Cell(110, 3, "Lugar y fecha:", 0, 0, 'R');
 $pdf->SetFont('gothambook', '', 9);
-$pdf->Cell(0, 5, "Toluca, México, 15 de Marzo de 2026.", 0, 1, 'R');
+$pdf->Cell(0, 5, "Toluca, México, 3 de Febrero de 2026.", 0, 1, 'R');
 
 // ----------------------------
 // DATOS GENERALES
