@@ -443,8 +443,8 @@ if (!empty($sede)) {
     $this->db->where('a.cve_sede', $sede);
 }
 
-
-$this->db->where("b.curp IS NOT NULL AND b.curp <> ''", null, false);
+$this->db->group_by('b.curp');
+$this->db->having("TRIM(b.curp) <> ''", null, false);
 
 $this->db->group_by([
     'a.curp'
