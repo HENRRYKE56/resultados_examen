@@ -446,10 +446,7 @@ if (!empty($sede)) {
 $this->db->group_by('b.curp');
 $this->db->having("TRIM(b.curp) <> ''", null, false);
 
-$this->db->group_by([
-    'a.curp'
-   
-]);
+
 
 //a., a., a.
 $this->db->order_by('a.cve_ies', 'ASC');
