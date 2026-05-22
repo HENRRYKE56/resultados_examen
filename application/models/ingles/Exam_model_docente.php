@@ -444,7 +444,7 @@ if (!empty($sede)) {
 }
 
 
-
+$this->db->where("b.curp IS NOT NULL AND b.curp <> ''", null, false);
 
 $this->db->group_by([
     'a.curp'
