@@ -1397,7 +1397,13 @@ $pdf->SetXY(22, 50);
 $pdf->SetFont('gothamblack', '', 10);
 $pdf->Cell(20, 5,$row['nombre_docente'], 0, 0, 'L');
 $pdf->SetXY(22, 55);
-$pdf->Cell(0, 5,'Estimado(a) docente universitario(a)', 0, 1, 'L');
+ if($ies <3){
+   $pdf->Cell(0, 5,'Estimado(a) docente universitario(a)', 0, 1, 'L'); 
+ } 
+ else{
+   $pdf->Cell(0, 5,'Estimado(a) docente normalista', 0, 1, 'L');
+ }
+
 
 
 
