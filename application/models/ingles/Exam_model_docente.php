@@ -447,9 +447,7 @@ if (!empty($sede)) {
 
 
 $this->db->group_by([
-    'a.cve_ies',
-    'a.cve_sede',
-    'a.cve_programa',
+    'a.curp'
    
 ]);
 
